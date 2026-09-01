@@ -1,0 +1,42 @@
+---
+/*
+ * すべてのページの外枠。
+ *
+ * ■ まだ「器」の段階
+ *   中身（何を記事にするか）が決まっていないので、意匠は最小限にしてある。
+ *   おなけんブログのような強い誌面コンセプトは、中身が決まってから当てる。
+ *   **ここに場当たりの装飾を足さないこと。** 足すなら方針を決めてから。
+ */
+export interface Props {
+  title: string;
+  description?: string;
+  /** サイトルートからの絶対パス。末尾スラッシュ付き（trailingSlash: 'always'）。 */
+  path: string;
+}
+
+const { title, description = '', path } = Astro.props;
+const canonical = new URL(path, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical} />
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <header class="head">
+      <a class="head-t" href="/">KaMeChannel</a>
+    </header>
+    <main class="main">
+      <slot />
+    </main>
+    <footer class="foot">
+      <p class="micro">© KaMeChannel</p>
+    </footer>
+  </body>
+</html>

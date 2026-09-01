@@ -1,0 +1,21 @@
+{
+  "name": "kamechannel",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "preview:worker": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.0",
+    "astro": "^7.2.2",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.124.0"
+  }
+}

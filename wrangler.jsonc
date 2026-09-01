@@ -1,0 +1,18 @@
+{
+  // Cloudflare Workers Static Assets（Pages ではない）。
+  // 検証: npx wrangler deploy --dry-run / npx wrangler dev
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "kamechannel",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    // 末尾スラッシュを正とする（astro.config.mjs の trailingSlash: 'always' と合わせる）
+    "html_handling": "force-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  // ⚠ ドメインは DNS を Cloudflare に向けてから有効にする。
+  //    それまでコメントのままにしておくこと（向ける前に deploy すると失敗する）。
+  // "routes": [
+  //   { "pattern": "kamechannel.com", "custom_domain": true }
+  // ]
+}
