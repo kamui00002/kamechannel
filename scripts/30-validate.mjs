@@ -28,6 +28,15 @@ const CLAUDE_DIR = process.env.CLAUDE_HOME ?? join(homedir(), '.claude');
 const DIST = join(ROOT, 'dist');
 const distMode = process.argv.includes('--dist');
 const selfTest = process.argv.includes('--self-test');
+/*
+ * 公開の直前だけ「運営者が註を読み返したか」を要求する（K10）。
+ *
+ * K4 は長さしか見ません。**誰が書いたかを問わない**ので、機械が書いた註でも
+ * 300 字あれば CI は緑になります。それは規約 §4 の「人が書くまで通らない」と
+ * 食い違うので、デプロイ側でだけ `reviewed: true` を求めます。
+ * 日々の CI（ci.yml）は下書きのまま通します。書きかけを push できないと不便なので。
+ */
+const requireReviewed = process.argv.includes('--require-reviewed');
 
 /** 人の一言の最低文字数。これ未満は「集めただけのページ」なので通しません。 */
 const NOTE_MIN = 300;
@@ -91,7 +100,7 @@ if (selfTest) {
 
 // ══════════════════════════════════════════════════
 if (!distMode) {
-  console.log('データ検証 K1〜K5');
+  console.log(requireReviewed ? 'データ検証 K1〜K5 + K10（公開直前）' : 'データ検証 K1〜K5');
 
   // K1 — catalog の path が実在するか。推測で書かれた path を通さない。
   if (!existsSync(CLAUDE_DIR)) {
@@ -123,6 +132,13 @@ if (!distMode) {
   if (thin.length) ng('K4', `note が ${NOTE_MIN} 字未満か TODO のまま: ${thin.map((e) => e.file).join(', ')}`);
   else if (entries.length === 0) ng('K4', 'entry が 1 件もありません');
   else ok('K4', `entry ${entries.length} 件すべてに ${NOTE_MIN} 字以上の note がある`);
+
+  // K10 — 公開の直前だけ。運営者が註を読み返したか。
+  if (requireReviewed) {
+    const unread = entries.filter((e) => e.data?.reviewed !== true);
+    if (unread.length) ng('K10', `reviewed がまだ true でない: ${unread.map((e) => e.data.slug).join(', ')}`);
+    else ok('K10', `entry ${entries.length} 件すべてを運営者が読み返している`);
+  }
 
   // K5 — 入口の検査。素材データの段階で秘匿値を止める。
   let k5 = 0;

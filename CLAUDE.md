@@ -75,6 +75,10 @@
 おなけんブログが AdSense に 2 回落ちたときの唯一の解が「オリジナル文章の追加」でした。
 
 - 検証 **K4 が 300 字未満と `TODO` を落とします**
+- ⚠ **K4 は長さしか見ません。「誰が書いたか」は問いません。** 機械が書いた註でも
+  300 字あれば CI は緑になります。そこで**デプロイ側にだけ K10** を置き、
+  `reviewed: true` でない記事があると公開できないようにしてあります
+  （`npm run validate:release`）。日々の CI は下書きのまま通します
 - `npm run new:entry` が作る雛形の note は `TODO` で、**そのままでは検証が通りません**。
   人が書くまで通らない状態をわざと作っています
 - 書くこと: **なぜそう作ったか / どこで詰まったか / いつ使わないと決めたか**
@@ -99,6 +103,7 @@
 | K7 | `dist/` にローカルの実パス・メール・IP が無い |
 | K8 | 生成物に出ている項目が catalog の範囲内 |
 | K9 | 記事ページが実在し、note が**註の段落として**誌面へ出ている（薄いページを出さない） |
+| K10 | **公開直前だけ。** 全記事が `reviewed: true`（`npm run validate:release`／`deploy.yml` が使う） |
 
 ### 陽性対照を先に取る（`rules/workflow.md`「検証の作法」）
 
@@ -145,6 +150,7 @@ K6/K7 が落ちる（終了コード 1）ことと、雛形の `TODO` で K4 が
 | `npm run harvest` | 層1。catalog の項目だけ `~/.claude` を棚卸し → `queue.yaml`。**ローカル専用**（CI に `~/.claude` は無い） |
 | `npm run new:entry -- --id <catalog の id>` | 層2。記事の雛形。note は TODO なので**そのままでは通らない** |
 | `npm run validate` | K1〜K5。commit 前に必ず |
+| `npm run validate:release` | K1〜K5 + **K10**（全記事が `reviewed: true`）。`deploy.yml` が使う |
 | `npm run build` | Astro ビルド → `dist/` |
 | `npm run validate:dist` | K6〜K9。`dist/` が無いと**スキップではなく FAIL** |
 | `npm run validate:self-test` | 陽性対照。検知器が生きているかを先に確かめる |
@@ -173,3 +179,18 @@ K6/K7 が落ちる（終了コード 1）ことと、雛形の `TODO` で K4 が
 - `git add` はパス指定。`git add -A` を使わない
 - コミット前に必ず `npm run validate && npm run build && npm run validate:dist`
 - ⚠ **public リポジトリです。** push する前に validate:dist が緑であることを確かめる
+- ⚠ **`validate:dist` は `dist/` しか見ません。履歴は見ません。**
+  public リポジトリは**過去のコミットも公開**です。一度 push した値は、あとで
+  ファイルから消しても blob として残ります。push 前に履歴も掃くこと:
+
+  ```bash
+  git log --all -p | grep -nE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b|/Users/[a-z0-9_.-]+/'
+  ```
+
+  （`scripts/lib/secret-patterns.mjs` の `/Users/example/` は陽性対照のダミーなので当たります）
+
+  実際に踏みました（2026-09-06）: 初回コミットの CLAUDE.md に旧サーバーの IP が入ったまま
+  public リポジトリへ push していました。HEAD だけ走査して「漏れなし」と判断したのが原因です。
+  `git filter-repo --replace-text` で履歴を書き換えて伏字にしました
+  （コミットの分け方とメッセージは維持）。⚠ GitHub は force push 後もしばらく古い
+  オブジェクトを保持するので、**完全な終了は当該ホストの解約**（issue #2）です。

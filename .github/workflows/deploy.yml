@@ -21,7 +21,12 @@ jobs:
 
       # デプロイ前も検証を通す。public サイトへ秘匿値を出さないための最後の砦。
       - run: npm run validate:self-test
-      - run: npm run validate
+
+      # ⚠ validate ではなく **validate:release**。K10 が加わり、
+      #    `reviewed: true` になっていない註があるとデプロイできません。
+      #    K4 は長さしか見ず「誰が書いたか」を問わないので、ここで塞ぎます。
+      - run: npm run validate:release
+
       - run: npm run build
       - run: npm run validate:dist
 

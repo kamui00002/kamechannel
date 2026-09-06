@@ -7,6 +7,7 @@
     "harvest": "node scripts/10-harvest.mjs",
     "new:entry": "node scripts/20-new-entry.mjs",
     "validate": "node scripts/30-validate.mjs",
+    "validate:release": "node scripts/30-validate.mjs --require-reviewed",
     "validate:dist": "node scripts/30-validate.mjs --dist",
     "validate:self-test": "node scripts/30-validate.mjs --dist --self-test",
     "dev": "astro dev",
