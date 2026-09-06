@@ -51,3 +51,34 @@ export const KIND_LABEL: Record<CatalogItem['kind'], string> = {
   agent: 'サブエージェント',
   hook: 'フック',
 };
+
+/**
+ * 註の中の `**強調**` と `` `コード` `` だけを組で解釈する。
+ *
+ * Markdown レンダラを入れていないのは、註に載せてよい記法を意図的に 2 つへ絞るためです。
+ * 見出しやリストを書けるようにすると、註が「もう一つの本文」になって長くなります。
+ * 註は散文で、強調とコードだけあれば足ります。
+ *
+ * ⚠ HTML 文字列を作って差し込むのではなく、**断片の配列を返します**。
+ *    ページ側が要素として組むので、生の HTML がテンプレートに入りません。
+ */
+export type Segment = { text: string; strong?: boolean; code?: boolean };
+
+export function toSegments(line: string): Segment[] {
+  const out: Segment[] = [];
+  // ** … ** と ` … ` を1本の正規表現で拾い、間の地の文と交互に積む
+  const re = /\*\*([^*]+)\*\*|`([^`]+)`/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(line)) !== null) {
+    if (m.index > last) out.push({ text: line.slice(last, m.index) });
+    if (m[1] !== undefined) out.push({ text: m[1], strong: true });
+    else out.push({ text: m[2], code: true });
+    last = m.index + m[0].length;
+  }
+  if (last < line.length) out.push({ text: line.slice(last) });
+  return out;
+}
+
+/** meta description 用。記法の記号を落とした素の文。 */
+export const plain = (s: string) => s.replace(/\*\*|`/g, '');

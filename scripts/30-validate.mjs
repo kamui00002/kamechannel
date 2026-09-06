@@ -177,9 +177,24 @@ if (distMode) {
   for (const e of entries) {
     const page = join(DIST, 'claude', e.data.slug, 'index.html');
     if (!existsSync(page)) { ng('K9', `${e.data.slug} のページが生成されていない`); k9 += 1; continue; }
-    const body = readFileSync(page, 'utf8');
-    const head = (e.data.note ?? '').trim().slice(0, 20);
-    if (head && !body.includes(head)) { ng('K9', `${e.data.slug} のページに note が出ていない`); k9 += 1; }
+    const html = readFileSync(page, 'utf8');
+
+    // ⚠ ページ全体を対象にしてはいけない（2026-09-06 実測）。
+    //    <meta name="description"> にも註の先頭が入っているので、本文の段落を
+    //    まるごと消しても素通りします（実際にそうなっていた）。
+    //    **註の段落だけ**を取り出して見ること。
+    const paras = [...html.matchAll(/<p class="note">([\s\S]*?)<\/p>/g)]
+      .map((m) => m[1].replace(/<[^>]+>/g, ''));
+    const expected = (e.data.note ?? '').trim().split(/\n{2,}/).length;
+
+    if (paras.length !== expected) {
+      ng('K9', `${e.data.slug} の註が ${expected} 段落のはずが ${paras.length} 段落`); k9 += 1; continue;
+    }
+    // 註の記法（** と `）はページ側で要素になるので、比べる前に落とす。
+    const head = (e.data.note ?? '').replace(/\*\*|`/g, '').trim().slice(0, 20);
+    if (head && !paras.join('\n').includes(head)) {
+      ng('K9', `${e.data.slug} の註の本文が誌面に出ていない`); k9 += 1;
+    }
   }
   if (k9 === 0) ok('K9', `entry ${entries.length} 件のページに note が出ている`);
 }

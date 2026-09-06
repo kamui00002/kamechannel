@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { entries, findItem, KIND_LABEL } from '../../lib/entries';
+import { entries, findItem, KIND_LABEL, toSegments, plain } from '../../lib/entries';
 
 export function getStaticPaths() {
   return entries.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
@@ -18,7 +18,7 @@ const paragraphs = entry.note.trim().split(/\n{2,}/);
 
 <BaseLayout
   title={`${entry.title} — KaMeChannel`}
-  description={entry.note.trim().slice(0, 110)}
+  description={plain(entry.note.trim()).slice(0, 110)}
   path={`/claude/${entry.slug}/`}
 >
   <article>
@@ -30,7 +30,13 @@ const paragraphs = entry.note.trim().split(/\n{2,}/);
       {entry.reviewed === false && <span class="draft">下書き</span>}
     </p>
 
-    {paragraphs.map((p) => <p class="note">{p}</p>)}
+    {paragraphs.map((p) => (
+      <p class="note">
+        {toSegments(p).map((s) =>
+          s.strong ? <strong>{s.text}</strong> : s.code ? <code>{s.text}</code> : s.text
+        )}
+      </p>
+    ))}
 
     {item?.credit && (
       <p class="credit"><strong>出典:</strong> {item.credit}</p>
