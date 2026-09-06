@@ -1,0 +1,35 @@
+# validate → build → validate:dist（おなけんブログと同じ流儀）
+#
+# K1 だけは ~/.claude を見る検査なので CI では走りません（理由を出してスキップ）。
+# 素材の実在確認はローカルの `npm run harvest` 時に行われます。
+name: ci
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+
+      # ⚠ 陽性対照を先に取る。ここが落ちたら、以降の緑は「安全」ではなく
+      #    「検知器が動いていない」の意味になる（rules/workflow.md「検証の作法」）。
+      - name: 陽性対照（検知器が生きているか）
+        run: npm run validate:self-test
+
+      - name: データ検証 K1〜K5
+        run: npm run validate
+
+      - name: ビルド
+        run: npm run build
+
+      - name: 生成物検証 K6〜K9（秘匿値スキャン）
+        run: npm run validate:dist

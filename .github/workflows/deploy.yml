@@ -1,0 +1,32 @@
+# 本番デプロイ — **手動起動のみ**。
+#
+# ⚠ ドメイン kamechannel.com の更新判断が保留中（期限 2026-10-20）で、
+#    DNS もまだ Cloudflare に向いていません。判断と DNS 切替が済むまで、
+#    push での自動デプロイにしないこと。手順は data/cutover-notes.md。
+name: deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+
+      # デプロイ前も検証を通す。public サイトへ秘匿値を出さないための最後の砦。
+      - run: npm run validate:self-test
+      - run: npm run validate
+      - run: npm run build
+      - run: npm run validate:dist
+
+      - name: wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy

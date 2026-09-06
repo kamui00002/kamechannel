@@ -1,8 +1,33 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { entries, findItem, KIND_LABEL } from '../lib/entries';
 ---
 
-<BaseLayout title="KaMeChannel" description="準備中" path="/">
+<BaseLayout
+  title="KaMeChannel — Claude Code の運用記録"
+  description="自分の ~/.claude にあるスキル・スラッシュコマンドを、なぜそう書いたかの註つきで置いています。"
+  path="/"
+>
   <h1>KaMeChannel</h1>
-  <p>準備中。</p>
+  <p class="lead">
+    Claude Code をどう運用しているかの記録です。手元の <code>~/.claude</code> にある
+    スキルやスラッシュコマンドを 1 つずつ取り上げて、<strong>なぜそう書いたか</strong>を添えています。
+    設定ファイルの写しではなく、そこに至った判断のほうを残す場所です。
+  </p>
+
+  <ul class="list">
+    {entries.map((e) => {
+      const item = findItem(e.sourceId);
+      return (
+        <li class="row">
+          <a class="row-t" href={`/claude/${e.slug}/`}>{e.title}</a>
+          <p class="row-m">
+            <span class="kind">{item ? KIND_LABEL[item.kind] : ''}</span>
+            <time datetime={e.publishedAt}>{e.publishedAt}</time>
+            {e.reviewed === false && <span class="draft">下書き</span>}
+          </p>
+        </li>
+      );
+    })}
+  </ul>
 </BaseLayout>

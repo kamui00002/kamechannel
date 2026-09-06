@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { entries, findItem, KIND_LABEL } from '../../lib/entries';
+
+export function getStaticPaths() {
+  return entries.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const item = findItem(entry.sourceId);
+
+/*
+ * 註は素の段落として出す。装飾を足さないこと。
+ * 検証 K9 が「note が実際にページへ出ているか」を dist で確かめています。
+ */
+const paragraphs = entry.note.trim().split(/\n{2,}/);
+---
+
+<BaseLayout
+  title={`${entry.title} — KaMeChannel`}
+  description={entry.note.trim().slice(0, 110)}
+  path={`/claude/${entry.slug}/`}
+>
+  <article>
+    <h1>{entry.title}</h1>
+    <p class="row-m">
+      <span class="kind">{item ? KIND_LABEL[item.kind] : ''}</span>
+      <code>{entry.sourceId}</code>
+      <time datetime={entry.publishedAt}>{entry.publishedAt}</time>
+      {entry.reviewed === false && <span class="draft">下書き</span>}
+    </p>
+
+    {paragraphs.map((p) => <p class="note">{p}</p>)}
+
+    {item?.credit && (
+      <p class="credit"><strong>出典:</strong> {item.credit}</p>
+    )}
+  </article>
+  <p><a href="/">← 一覧へ</a></p>
+</BaseLayout>

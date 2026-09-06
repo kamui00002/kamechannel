@@ -1,0 +1,49 @@
+# ⚠ 生成物。手で編集しない（`npm run harvest` が作り直します）。
+# 素材の出どころは src/data/catalog.yaml の allowlist だけです。
+# 本文はここに持ち込みません（public リポジトリなので hash だけ持ちます）。
+generatedAt: '2026-09-06'
+unregisteredCount: 71
+items:
+  - id: html-explain
+    kind: command
+    path: commands/html-explain.md
+    description: ''
+    bytes: 5521
+    hash: 3f5c337e0fdabbe9
+    state: new
+    seenAt: '2026-09-06'
+  - id: empirical-prompt-tuning
+    kind: skill
+    path: skills/empirical-prompt-tuning/SKILL.md
+    description: >-
+      agent 向けテキスト指示（skill / slash command / task プロンプト / CLAUDE.md 節 /
+      コード生成プロンプト）を、バイアスを排した実行者に動かしてもらい、両面（実行者の自己申告 + 指示側メトリクス）で評価して反復改善する手法。改善が頭打ちになるまで回す。プロンプトや
+      skill を新規作成・大幅改訂した直後、またはエージェントの挙動が期待通りにならない原因を指示側の曖昧さに求めたいときに使う。
+    bytes: 15479
+    hash: 21cb213c1d2c0279
+    state: new
+    seenAt: '2026-09-06'
+  - id: review-orchestrator
+    kind: skill
+    path: skills/review-orchestrator/SKILL.md
+    description: >-
+      Tomada-style **4-stage fixed-role** parallel code review with validity filtering. Use this
+      when the user is about to commit/open a PR and says レビューして / review this / PRレビューして / コードレビュー
+      / コミット前に見て / 実装後レビュー. Runs 4 **fixed** reviewer sub-agents in parallel (simplifier + general +
+      codex + project-rules), then a validity-judge filter that drops ~80% (fabricated /
+      acceptable-range / non-existent-corner-case / authority-bias), then presents an integrated
+      report. Use this as the **default implementation-after review path** for normal feature/fix
+      commits. For dynamic-persona generation (2-4 reviewer personas adapted to the diff) use the
+      `multi-agent-reviewer` skill instead.
+    bytes: 9027
+    hash: 59e2913339c5ce08
+    state: new
+    seenAt: '2026-09-06'
+  - id: automation-review
+    kind: command
+    path: commands/automation-review.md
+    description: 手作業の繰り返しを洗い出して自動化バックログに候補行を追記する (read-only 分析・実装はしない)
+    bytes: 3779
+    hash: d21d1d342a1c470d
+    state: new
+    seenAt: '2026-09-06'

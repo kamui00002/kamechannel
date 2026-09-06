@@ -1,0 +1,43 @@
+# KaMeChannel に載せてよい ~/.claude の項目 — allowlist ⭐️
+#
+# ■ ここが設計のいちばん大事な一線
+#   このリポジトリは **public** で、素材は運営者自身の ~/.claude です。
+#   だから「出さないものを除外する」方式は採りません。**ここに書いたものだけを読む**、
+#   という方式（allowlist-in）です。除外リスト方式は、新しく作った skill が
+#   黙って公開される事故を必ず起こします。
+#
+#   `scripts/10-harvest.mjs` は、ここに無い項目を **開きもしません**。
+#   未登録の項目は「件数」だけ queue.yaml に出ます（名前はリポジトリに残りません）。
+#
+# ■ 足すときに確かめること（1つでも当てはまるなら足さない）
+#   1. **自分が書いたものか。** 他人の skill をそのまま載せるのは、
+#      他人の記事を転載するのと同じです。元ネタがあるなら `credit` に書く
+#   2. **案件名・顧客名・製品名が入っていないか**（ads-* / asc-review-prep / mobai-* 等）
+#   3. **鍵・トークン・ボード ID・実パスが本文に入っていないか**
+#      （入っていても検証 K6/K7 が dist で止めますが、そこは最後の砦であって入口ではない）
+#
+# ■ 書き方
+#   id     … ファイル名から拡張子とディレクトリを除いたもの。記事の slug の既定値になる
+#   kind   … skill | command | rule | agent | hook
+#   path   … ~/.claude からの相対パス。**推測で書かない**（K1 が実在を確かめます）
+#   credit … 元になった他人の仕事があるなら、その出典。記事にも出ます
+
+items:
+  - id: html-explain
+    kind: command
+    path: commands/html-explain.md
+
+  - id: empirical-prompt-tuning
+    kind: skill
+    path: skills/empirical-prompt-tuning/SKILL.md
+
+  - id: review-orchestrator
+    kind: skill
+    path: skills/review-orchestrator/SKILL.md
+    credit: >-
+      とまだ氏 / Masuyama 氏の実運用ワークフローを再現したもの。
+      SKILL.md 冒頭に本人がそう明記している。
+
+  - id: automation-review
+    kind: command
+    path: commands/automation-review.md
