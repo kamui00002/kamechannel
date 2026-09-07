@@ -28,11 +28,32 @@ export interface CatalogItem {
   credit?: string;
 }
 
+/**
+ * Claude Code に最初から入っている機能（catalog.yaml の `builtins:` 節）。
+ *
+ * ⚠ `path` を持ちません。出どころのファイルが ~/.claude に無いからです。
+ *    items と同じ名簿に混ぜて path を任意にすると、items 側の書き忘れが
+ *    「組み込みだから無いのだろう」と黙って通ります。だから型ごと分けています。
+ */
+export interface BuiltinItem {
+  id: string;
+  kind: 'builtin';
+  credit?: string;
+}
+
+/** 記事が指せるもの。catalog の項目か、組み込み機能か。 */
+export type Item = CatalogItem | BuiltinItem;
+
 const DATA = path.resolve('src/data');
 
-export const catalog: CatalogItem[] = (
-  yaml.load(fs.readFileSync(path.join(DATA, 'catalog.yaml'), 'utf8')) as { items: CatalogItem[] }
-).items;
+const catalogDoc = yaml.load(
+  fs.readFileSync(path.join(DATA, 'catalog.yaml'), 'utf8')
+) as { items?: CatalogItem[]; builtins?: BuiltinItem[] };
+
+export const catalog: CatalogItem[] = catalogDoc.items ?? [];
+
+/** 組み込み機能の名簿。items とは別に持つ（path の有無で安全装置が変わるため） */
+export const builtins: BuiltinItem[] = catalogDoc.builtins ?? [];
 
 export const entries: Entry[] = fs
   .readdirSync(path.join(DATA, 'entries'))
@@ -41,15 +62,17 @@ export const entries: Entry[] = fs
   // 新しい順。同日は slug で安定させる（ビルドのたびに順が入れ替わらないように）
   .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.slug.localeCompare(b.slug));
 
-export const findItem = (id: string) => catalog.find((c) => c.id === id);
+export const findItem = (id: string): Item | undefined =>
+  catalog.find((c) => c.id === id) ?? builtins.find((b) => b.id === id);
 
 /** kind の日本語表示。文字列を各所に散らさない。 */
-export const KIND_LABEL: Record<CatalogItem['kind'], string> = {
+export const KIND_LABEL: Record<Item['kind'], string> = {
   skill: 'スキル',
   command: 'スラッシュコマンド',
   rule: 'ルール',
   agent: 'サブエージェント',
   hook: 'フック',
+  builtin: '組み込みコマンド',
 };
 
 /**

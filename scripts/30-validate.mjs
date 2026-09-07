@@ -48,7 +48,10 @@ const skip = (id, msg) => console.log(`  – ${id} スキップ: ${msg}`);
 
 const catalog = yaml.load(readFileSync(join(ROOT, 'src/data/catalog.yaml'), 'utf8'));
 const catalogItems = catalog?.items ?? [];
-const catalogIds = new Set(catalogItems.map((i) => i.id));
+// 組み込み機能は別の名簿。path を持たないので K1 の実在確認の対象外です。
+const catalogBuiltins = catalog?.builtins ?? [];
+// K3 / K8 が使う「記事が指してよい id」は両方の合併。
+const catalogIds = new Set([...catalogItems, ...catalogBuiltins].map((i) => i.id));
 
 const ENTRY_DIR = join(ROOT, 'src/data/entries');
 const entryFiles = existsSync(ENTRY_DIR)
@@ -102,13 +105,25 @@ if (selfTest) {
 if (!distMode) {
   console.log(requireReviewed ? 'データ検証 K1〜K5 + K10（公開直前）' : 'データ検証 K1〜K5');
 
-  // K1 — catalog の path が実在するか。推測で書かれた path を通さない。
+  // K1 — 名簿の形（path の有無）と、path の実在。推測で書かれた path を通さない。
+  //
+  // ⚠ 形の検査は ~/.claude が無い環境（CI）でも必ず走らせます。実在確認と一緒に
+  //   skip してしまうと、items 側の **path 書き忘れが CI で素通り**します。
+  //   それは「組み込みだから path が無いのだろう」と読める状態で、
+  //   items と builtins を分けた意味がなくなります。
+  const shapeBad = [
+    ...catalogItems.filter((i) => !i.path).map((i) => `${i.id}（items なのに path が無い）`),
+    ...catalogBuiltins.filter((i) => i.path).map((i) => `${i.id}（builtins なのに path がある）`),
+  ];
+  if (shapeBad.length) ng('K1', `名簿の形が違う: ${shapeBad.join(' / ')}`);
+
   if (!existsSync(CLAUDE_DIR)) {
-    skip('K1', `${CLAUDE_DIR} が無い環境（CI 等）。素材の実在確認はローカルの harvest 時に行われます`);
+    skip('K1', `${CLAUDE_DIR} が無い環境（CI 等）。実在確認はローカルの harvest 時。形の検査は上で済んでいます`);
   } else {
-    const missing = catalogItems.filter((i) => !existsSync(join(CLAUDE_DIR, i.path)));
+    const missing = catalogItems.filter((i) => i.path && !existsSync(join(CLAUDE_DIR, i.path)));
     if (missing.length) ng('K1', `~/.claude に無い path: ${missing.map((i) => i.id).join(', ')}`);
-    else ok('K1', `catalog ${catalogItems.length} 件すべての path が実在`);
+    else if (!shapeBad.length)
+      ok('K1', `items ${catalogItems.length} 件の path が実在／builtins ${catalogBuiltins.length} 件は path 無し`);
   }
 
   // K2 — slug の健全性。URL そのものなので後から変えられない。

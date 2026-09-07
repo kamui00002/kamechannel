@@ -26,7 +26,10 @@ if (!id) {
 }
 
 const catalog = yaml.load(readFileSync(join(ROOT, 'src/data/catalog.yaml'), 'utf8'));
-const item = (catalog?.items ?? []).find((i) => i.id === id);
+// items（~/.claude の素材）と builtins（Claude Code の組み込み機能）の両方から探す
+const item =
+  (catalog?.items ?? []).find((i) => i.id === id) ??
+  (catalog?.builtins ?? []).find((i) => i.id === id);
 if (!item) {
   // allowlist-in。catalog に無いものは記事にできません（検証 K3 と同じ一線）。
   console.error(`catalog.yaml に "${id}" がありません。まず allowlist に足してください。`);
