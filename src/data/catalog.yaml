@@ -41,3 +41,102 @@ items:
   - id: automation-review
     kind: command
     path: commands/automation-review.md
+
+  # ── rules（~/.claude/rules/）──────────────────────────────
+  # 全プロジェクトに効く普遍ルール。obsidian-brain.md は Vault の実パスと
+  # 個人名が本文に入っているため足していない（足す基準 3）。
+
+  - id: workflow
+    kind: rule
+    path: rules/workflow.md
+    credit: >-
+      Surgical Changes と Goal-Driven Execution の節は Andrej Karpathy の指摘
+      （x.com/karpathy/status/2015883857489522876）を下敷きにしている。
+
+  - id: secrets
+    kind: rule
+    path: rules/secrets.md
+
+  - id: output-format
+    kind: rule
+    path: rules/output-format.md
+    credit: >-
+      Thariq Shihipar「The Unreasonable Effectiveness of HTML」と
+      Simon Willison による紹介（2026-05-08）を読んで書いたもの。
+
+  # ── agents（~/.claude/agents/）───────────────────────────
+  # review-orchestrator が並列で呼ぶ 4 役と、その後段の妥当性フィルタ。
+
+  - id: filter-validity-judge
+    kind: agent
+    path: agents/filter-validity-judge.md
+
+  - id: reviewer-simplifier
+    kind: agent
+    path: agents/reviewer-simplifier.md
+
+  - id: reviewer-general
+    kind: agent
+    path: agents/reviewer-general.md
+
+  - id: reviewer-project-rules
+    kind: agent
+    path: agents/reviewer-project-rules.md
+
+  - id: reviewer-codex
+    kind: agent
+    path: agents/reviewer-codex.md
+
+  # ── commands（~/.claude/commands/）───────────────────────
+  # automate.md / bip.md は Vault の実パスが本文にあるため足していない。
+
+  - id: review-full
+    kind: command
+    path: commands/review-full.md
+
+  # ── hooks（~/.claude/hooks/）─────────────────────────────
+  # 規約を文章でなく実行で守らせている側。secrets 系は rules/secrets.md の
+  # 三層防御の実体で、_secret_patterns.py はこのリポジトリの
+  # scripts/lib/secret-patterns.mjs の出どころ。
+
+  - id: secrets_guard
+    kind: hook
+    path: hooks/secrets_guard.py
+
+  - id: secrets_output_alert
+    kind: hook
+    path: hooks/secrets_output_alert.py
+
+  - id: pre_commit_branch_guard
+    kind: hook
+    path: hooks/pre_commit_branch_guard.py
+
+  - id: build_verify_reminder
+    kind: hook
+    path: hooks/build_verify_reminder.py
+
+  # ── skills（~/.claude/skills/）───────────────────────────
+  # ⚠ skills には他人のリポジトリから取り込んだものが混ざっている
+  #    （full-scan / security-scan / sec-diff-review は
+  #     github.com/sabakan0123/claude-security-skills 由来。
+  #     SKILL.md の metadata.github-repo で判別できる）。
+  #    ベンダー製（minimax-* / video-use / frontend-design / mcp-builder /
+  #    skill-creator / pptx-generator / integration-swift）も同様に足さない。
+  #    案件名が入る ads-* / asc-review-prep / mobai-* も足さない（基準 2）。
+  #    obsidian-search / obsidian-learn / dream は Vault の実パス（基準 3）。
+
+  - id: prerelease-qa
+    kind: skill
+    path: skills/prerelease-qa/SKILL.md
+
+  - id: learn-quiz
+    kind: skill
+    path: skills/learn-quiz/SKILL.md
+
+  - id: multi-agent-reviewer
+    kind: skill
+    path: skills/multi-agent-reviewer/SKILL.md
+    credit: >-
+      nka21 氏の記事「AIレビューの『で、これ合ってんの？』を減らす」
+      （zenn.dev/nka21/articles/claude-code-multi-agent-reviewer）の
+      ワークフローを自分の運用に合わせて組み直したもの。
