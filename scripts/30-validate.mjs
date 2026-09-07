@@ -180,13 +180,44 @@ if (distMode) {
   }
   if (k7 === 0) ok('K7', `${files.length} ファイルにローカルパス・メール・IP は無い`);
 
-  // K8 — allowlist の破れを生成物側で確かめる。
-  const html = files.filter((f) => f.endsWith('.html')).map((f) => readFileSync(f, 'utf8')).join('\n');
-  const leaked = [...catalogIds].length === 0 ? [] : null;
-  const entryIds = new Set(entries.map((e) => e.data?.sourceId));
-  const notPublished = [...entryIds].filter((id) => !catalogIds.has(id));
-  if (notPublished.length) ng('K8', `catalog 外の id が記事になっている: ${notPublished.join(', ')}`);
-  else ok('K8', '生成物に出ている項目は catalog の範囲内');
+  // K8 — allowlist の破れを **生成物側** で確かめる。
+  //
+  // ⚠ K3 と役割が違います。K3 は src/data/ の中だけを見ます（entry の sourceId ⊂ catalog）。
+  //   K8 は dist/ の HTML を読み、**誌面に実際に出た id** を catalog と突き合わせます。
+  //   だから K3 から見えないもの — テンプレートの書き換え、dist/ や public/ への手置き、
+  //   catalog を縮めたあとに残った古い dist — がここで落ちます。
+  //   逆向き（entry にページがあるか）は K9 が見ます。K8 は前向き（ページに entry があるか）です。
+  //
+  // ⚠ <code> はページ内で一意ではありません。註の `…` も toSegments が <code> にします。
+  //   ページ全体から <code> を拾うと註の断片に当たって空振りします。2026-09-06 の K9 と
+  //   同じ形の失敗なので、**まず <p class="row-m"> を切り出してから** その中の <code> を見ます。
+  const entrySlugs = new Set(entries.map((e) => e.data?.slug));
+  const pages = files.filter((f) => /\/claude\/[^/]+\/index\.html$/.test(f));
+  let k8 = 0;
+  for (const abs of pages) {
+    const rel = relative(DIST, abs);
+    const slug = rel.split('/')[1]; // claude/<slug>/index.html
+
+    // (2) 記事になっていない素材のページが誌面に出ていないか（queue.yaml を import する事故）
+    if (!entrySlugs.has(slug)) {
+      ng('K8', `entry の無いページが生成されている: ${rel}`); k8 += 1; continue;
+    }
+
+    // (1) 誌面に出ている sourceId が catalog の範囲内か
+    const ids = [...readFileSync(abs, 'utf8').matchAll(/<p class="row-m">([\s\S]*?)<\/p>/g)]
+      .flatMap((m) => [...m[1].matchAll(/<code>([^<]*)<\/code>/g)].map((c) => c[1]));
+
+    // ⚠ 0 個を通さない。テンプレートが <code> を落としたとき、当たりを filter するだけの
+    //   書き方だと「1 件も見つからない ＝ 違反なし」で緑になります。それは検査していないのと同じ。
+    if (ids.length !== 1) {
+      ng('K8', `${rel} の見出し欄の sourceId が ${ids.length} 個（1 個であるはず）`); k8 += 1; continue;
+    }
+    if (!catalogIds.has(ids[0])) {
+      ng('K8', `catalog 外の id が誌面に出ている: ${rel} の ${ids[0]}`); k8 += 1;
+    }
+  }
+  if (pages.length === 0) { ng('K8', '記事ページが 1 つも生成されていない'); k8 += 1; }
+  if (k8 === 0) ok('K8', `生成された ${pages.length} ページの id はすべて catalog の範囲内`);
 
   // K9 — 薄いページを出さない。note が実際に誌面へ出ているか。
   let k9 = 0;
