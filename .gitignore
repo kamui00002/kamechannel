@@ -3,3 +3,9 @@ dist/
 .astro/
 .wrangler/
 .DS_Store
+
+# Claude Code の Browser ペイン用 dev サーバー設定（各人のローカル環境の話で、
+# サイトの中身ではない）。⚠ `.claude/` ごと無視しないこと — ディレクトリを丸ごと
+# 伏せると、あとで .claude/ に置いたファイルが git status に出なくなります。
+# それは §3 で退けた「除外リスト方式」と同じ形（黙って隠れる）です。
+.claude/launch.json
