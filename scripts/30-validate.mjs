@@ -191,12 +191,19 @@ if (distMode) {
   // ⚠ <code> はページ内で一意ではありません。註の `…` も toSegments が <code> にします。
   //   ページ全体から <code> を拾うと註の断片に当たって空振りします。2026-09-06 の K9 と
   //   同じ形の失敗なので、**まず <p class="row-m"> を切り出してから** その中の <code> を見ます。
+  // ⚠ 判定は **dist/ からの相対パス** で行うこと。絶対パスに正規表現を当てると、
+  //   形の違うページ（階層が 1 つ深い等）が pages から静かに落ちます。落ちた分は
+  //   検査もされず違反にもならないので、また「検査せず緑」になります。
+  //   だから claude/ 配下の HTML を**全部拾ってから**、形の違うものを違反として落とします。
   const entrySlugs = new Set(entries.map((e) => e.data?.slug));
-  const pages = files.filter((f) => /\/claude\/[^/]+\/index\.html$/.test(f));
+  const pages = files
+    .map((abs) => ({ abs, rel: relative(DIST, abs) }))
+    .filter(({ rel }) => rel.startsWith('claude/') && rel.endsWith('.html'));
   let k8 = 0;
-  for (const abs of pages) {
-    const rel = relative(DIST, abs);
-    const slug = rel.split('/')[1]; // claude/<slug>/index.html
+  for (const { abs, rel } of pages) {
+    const m = rel.match(/^claude\/([^/]+)\/index\.html$/);
+    if (!m) { ng('K8', `想定外の場所に記事ページがある: ${rel}`); k8 += 1; continue; }
+    const slug = m[1];
 
     // (2) 記事になっていない素材のページが誌面に出ていないか（queue.yaml を import する事故）
     if (!entrySlugs.has(slug)) {
