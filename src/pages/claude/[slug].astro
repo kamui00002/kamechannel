@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { entries, findItem, KIND_LABEL, toSegments, plain } from '../../lib/entries';
+import Figure from '../../components/Figure.astro';
 
 export function getStaticPaths() {
   return entries.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
@@ -23,19 +24,46 @@ const paragraphs = entry.note.trim().split(/\n{2,}/);
 >
   <article>
     <h1>{entry.title}</h1>
-    <p class="row-m">
+    <p class="meta">
       <span class="kind">{item ? KIND_LABEL[item.kind] : ''}</span>
-      <code>{entry.sourceId}</code>
+      <span class="sid">{entry.sourceId}</span>
       <time datetime={entry.publishedAt}>{entry.publishedAt}</time>
       {entry.reviewed === false && <span class="draft">下書き</span>}
     </p>
 
-    {paragraphs.map((p) => (
+    {paragraphs.map((p, pi) => (
+      <>
       <p class="note">
-        {toSegments(p).map((s) =>
-          s.strong ? <strong>{s.text}</strong> : s.code ? <code>{s.text}</code> : s.text
+        {toSegments(p).map((s, si) =>
+          s.gloss ? (
+            /* 言い換え。既定は畳んである。用語を押した/触れたときだけ出す。
+               ⚠ popover は素の HTML の機能で、JavaScript を1行も足していない。 */
+            /* ⚠ 目印の名前は用語ごとに変える。全部同じ名前にすると、どのカードも
+                  ページ最後の用語にぶら下がって画面外に飛ぶ（2026-09-08 に踏んだ）。 */
+            <>
+              <button type="button" class="gl" popovertarget={`gl-${pi}-${si}`}
+                aria-describedby={`gl-${pi}-${si}`}
+                style={`anchor-name:--gl-${pi}-${si}`}>
+                {s.code ? <code>{s.text}</code> : s.text}
+              </button>
+              <span class="gl-t" popover id={`gl-${pi}-${si}`}
+                style={`position-anchor:--gl-${pi}-${si}`}>
+                {/* 用語名を札の中にも出す。画面が狭いと札が用語から離れた所に出るため、
+                    何の説明かが札だけで分かるようにしておく。 */}
+                <b class="gl-n">{s.text}</b>
+                <span class="gl-b">{s.gloss}</span>
+              </span>
+            </>
+          )
+            : s.strong ? <strong>{s.text}</strong>
+            : s.code ? <code>{s.text}</code>
+            : s.text
         )}
       </p>
+      {/* この段落の後ろに置く図。データが持つのは置き場所と説明だけ（Figure.astro が絵） */}
+      {(entry.figures ?? []).filter((f) => f.after === pi + 1)
+        .map((f) => <Figure kind={f.kind} after={f.after} caption={f.caption} />)}
+      </>
     ))}
 
     {item?.credit && (

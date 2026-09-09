@@ -18,7 +18,28 @@ export interface Entry {
   reviewed?: boolean;
   /** 人が書いた註。**このサイトの値打ちの実体**（検証 K4 が 300 字未満で落とす） */
   note: string;
+  /** 図。註のどの段落の後ろに置くかだけをデータに持つ（絵そのものは部品側） */
+  figures?: Figure[];
 }
+
+/**
+ * 図の指定。
+ *
+ * ⚠ **データに絵を持たせません。** SVG の中身を yaml に書くと、記事データが
+ *    生の HTML 置き場になり、`toSegments` で守っている一線（生の HTML を
+ *    テンプレートに入れない）が崩れます。データが持つのは「どこに・どの図を・
+ *    どういう説明で」の 3 つだけで、絵は src/components/Figure.astro にあります。
+ */
+export interface Figure {
+  /** 註の何段落目の後ろに置くか（1 始まり） */
+  after: number;
+  /** どの絵か。Figure.astro が知っている名前だけ */
+  kind: 'bytes' | 'write-edit' | 'reading-order';
+  /** 図の下に出る一行。図だけ見て意味が取れるように書く */
+  caption: string;
+}
+
+const FIGURE_KINDS = ['bytes', 'write-edit', 'reading-order'];
 
 export interface CatalogItem {
   id: string;
@@ -62,6 +83,25 @@ export const entries: Entry[] = fs
   // 新しい順。同日は slug で安定させる（ビルドのたびに順が入れ替わらないように）
   .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.slug.localeCompare(b.slug));
 
+/*
+ * 図の指定を読み込み時に確かめる。
+ *
+ * ⚠ ここで落とさないと、`after` の打ち間違いや `kind` の綴り間違いが
+ *    「図が出ないだけ」で黙って通ります。誌面は正常に見えるので誰も気づきません。
+ *    ビルドを止めるのが唯一の気づき方です。
+ */
+for (const e of entries) {
+  const paragraphs = e.note.trim().split(/\n{2,}/).length;
+  for (const f of e.figures ?? []) {
+    if (!FIGURE_KINDS.includes(f.kind))
+      throw new Error(`${e.slug}: 知らない図の名前「${f.kind}」。使えるのは ${FIGURE_KINDS.join(' / ')}`);
+    if (!Number.isInteger(f.after) || f.after < 1 || f.after > paragraphs)
+      throw new Error(`${e.slug}: 図の after が範囲外（${f.after}）。註は ${paragraphs} 段落しかありません`);
+    if (!f.caption?.trim())
+      throw new Error(`${e.slug}: 図に caption がありません（図だけ見て意味が取れる一行を書くこと）`);
+  }
+}
+
 export const findItem = (id: string): Item | undefined =>
   catalog.find((c) => c.id === id) ?? builtins.find((b) => b.id === id);
 
@@ -78,25 +118,40 @@ export const KIND_LABEL: Record<Item['kind'], string> = {
 /**
  * 註の中の `**強調**` と `` `コード` `` だけを組で解釈する。
  *
- * Markdown レンダラを入れていないのは、註に載せてよい記法を意図的に 2 つへ絞るためです。
+ * Markdown レンダラを入れていないのは、註に載せてよい記法を意図的に絞るためです。
  * 見出しやリストを書けるようにすると、註が「もう一つの本文」になって長くなります。
- * 註は散文で、強調とコードだけあれば足ります。
+ * 註は散文で、強調とコードと**用語の言い換え**だけあれば足ります。
+ *
+ * ■ 言い換え `{{用語|かみ砕いた一言}}`（2026-09-08 追加）
+ *   誌面では用語に点線が引かれ、**押したときだけ**言い換えが出ます。
+ *   足した理由は、註が「その言葉を知っている人にしか読めない」状態だったからです。
+ *   ⚠ 見出しやリストと違って、これは**本文を増やしません**。1 語を言い換えるだけで、
+ *      註が「もう一つの本文」に膨らむ心配がない。だから 3 つ目として許しています。
+ *   ⚠ 常時表示にしない理由: 註の地の文に小さな札が並ぶと、目が文でなく札を追います。
+ *      言い換えは「知らない人だけが要る」ものなので、既定は畳んでおきます。
+ *   用語は `` ` `` で囲めばコードとして出ます（例: {{`Edit`|直す所だけ触る}}）。
  *
  * ⚠ HTML 文字列を作って差し込むのではなく、**断片の配列を返します**。
  *    ページ側が要素として組むので、生の HTML がテンプレートに入りません。
  */
-export type Segment = { text: string; strong?: boolean; code?: boolean };
+export type Segment = { text: string; strong?: boolean; code?: boolean; gloss?: string };
 
 export function toSegments(line: string): Segment[] {
   const out: Segment[] = [];
-  // ** … ** と ` … ` を1本の正規表現で拾い、間の地の文と交互に積む
-  const re = /\*\*([^*]+)\*\*|`([^`]+)`/g;
+  // ** … ** と ` … ` と {{用語|言い換え}} を1本の正規表現で拾い、間の地の文と交互に積む
+  const re = /\*\*([^*]+)\*\*|`([^`]+)`|\{\{([^}|]+)\|([^}]+)\}\}/g;
   let last = 0;
   let m: RegExpExecArray | null;
   while ((m = re.exec(line)) !== null) {
     if (m.index > last) out.push({ text: line.slice(last, m.index) });
     if (m[1] !== undefined) out.push({ text: m[1], strong: true });
-    else out.push({ text: m[2], code: true });
+    else if (m[2] !== undefined) out.push({ text: m[2], code: true });
+    else {
+      // 用語が ` ` で囲まれていればコードとして組む
+      const t = m[3].trim();
+      const isCode = t.startsWith('`') && t.endsWith('`') && t.length > 2;
+      out.push({ text: isCode ? t.slice(1, -1) : t, code: isCode, gloss: m[4].trim() });
+    }
     last = m.index + m[0].length;
   }
   if (last < line.length) out.push({ text: line.slice(last) });
@@ -104,4 +159,5 @@ export function toSegments(line: string): Segment[] {
 }
 
 /** meta description 用。記法の記号を落とした素の文。 */
-export const plain = (s: string) => s.replace(/\*\*|`/g, '');
+export const plain = (s: string) =>
+  s.replace(/\{\{([^}|]+)\|[^}]+\}\}/g, '$1').replace(/\*\*|`/g, '');

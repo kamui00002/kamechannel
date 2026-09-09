@@ -1,0 +1,119 @@
+---
+/*
+ * 註にはさむ図。
+ *
+ * ⚠ **絵はここにしかありません。** 記事データ（yaml）が持つのは「どこに・どの図を・
+ *    どういう説明で」の 3 つだけです。SVG を yaml に書くと、記事データが生の HTML
+ *    置き場になります（src/lib/entries.ts の Figure の註釈を参照）。
+ * ⚠ 色は変数だけ。しかも**役割を固定**します: 青 = 元のまま / 緑 = 足された /
+ *    赤 = 消える。図をまたいで同じ意味にしないと、読み手が毎回覚え直します。
+ */
+import type { Figure } from '../lib/entries';
+const { kind, caption } = Astro.props as Figure;
+---
+
+<figure class="fig">
+  {kind === 'bytes' && (
+    <svg viewBox="0 0 700 290" role="img" aria-label="打つ前は 12,617 バイト。打った後は 16,117 バイト。元の本文の青い部分は同じ大きさのまま残り、上に緑の 3,500 バイトが足されている">
+      <text x="150" y="46" class="f-num">12,617 バイト</text>
+      <text x="470" y="46" class="f-num">16,117 バイト</text>
+
+      <rect x="85" y="90" width="130" height="130" class="f-keep" />
+      <text x="150" y="162" class="f-mini t-keep">元の本文</text>
+      <text x="150" y="248" class="f-cap">打つ前</text>
+
+      <line x1="240" y1="155" x2="368" y2="155" class="f-line" />
+      <polygon points="382,155 364,147 364,163" class="f-arrow" />
+      <text x="308" y="140" class="f-mini">/init を打つ</text>
+
+      <rect x="405" y="90" width="130" height="130" class="f-keep" />
+      <text x="470" y="162" class="f-mini t-keep">元の本文</text>
+      <rect x="405" y="57" width="130" height="33" class="f-add" />
+      <text x="470" y="248" class="f-cap">打った後</text>
+
+      <path d="M215 90 L405 90" class="f-tie" />
+      <path d="M215 220 L405 220" class="f-tie" />
+
+      <text x="556" y="79" class="f-mini f-left t-add">＋3,500 足された</text>
+      <text x="556" y="150" class="f-mini f-left t-keep">高さが同じ</text>
+      <text x="556" y="170" class="f-mini f-left">＝一行も消えていない</text>
+    </svg>
+  )}
+
+  {kind === 'write-edit' && (
+    <svg viewBox="0 0 700 350" role="img" aria-label="もし Write なら元の青い行は消えて別の行に置き換わる。実際に使われた Edit は元の青い行を残したまま緑の行を足す">
+      <g class="f-faint">
+        <text x="24" y="34" class="f-cap f-left">もし Write だったら</text>
+        <rect x="24" y="52" width="104" height="118" class="f-paper" />
+        <g class="l-keep"><rect x="40" y="70" width="72" height="7" /><rect x="40" y="86" width="72" height="7" /><rect x="40" y="102" width="52" height="7" /><rect x="40" y="118" width="72" height="7" /></g>
+        <line x1="146" y1="111" x2="186" y2="111" class="f-line" />
+        <polygon points="200,111 182,103 182,119" class="f-arrow" />
+        <rect x="216" y="52" width="104" height="118" class="f-gone" />
+        <g class="l-new"><rect x="232" y="70" width="72" height="7" /><rect x="232" y="86" width="56" height="7" /><rect x="232" y="102" width="72" height="7" /></g>
+        <line x1="232" y1="130" x2="304" y2="152" class="f-x" />
+        <line x1="304" y1="130" x2="232" y2="152" class="f-x" />
+        <text x="172" y="196" class="f-mini">紙をまるごと書き直す</text>
+        <text x="172" y="216" class="f-mini t-gone">元の行は残らない</text>
+      </g>
+
+      <text x="380" y="34" class="f-cap f-left t-add">実際は Edit だった</text>
+      <rect x="380" y="52" width="104" height="118" class="f-paper" />
+      <g class="l-keep"><rect x="396" y="70" width="72" height="7" /><rect x="396" y="86" width="72" height="7" /><rect x="396" y="102" width="52" height="7" /><rect x="396" y="118" width="72" height="7" /></g>
+      <line x1="502" y1="111" x2="542" y2="111" class="f-line" />
+      <polygon points="556,111 538,103 538,119" class="f-arrow" />
+      <rect x="572" y="52" width="104" height="118" class="f-paper" />
+      <g class="l-keep"><rect x="588" y="70" width="72" height="7" /><rect x="588" y="86" width="72" height="7" /><rect x="588" y="102" width="52" height="7" /><rect x="588" y="118" width="72" height="7" /></g>
+      <g class="l-add"><rect x="588" y="134" width="60" height="7" /><rect x="588" y="150" width="44" height="7" /></g>
+      <text x="528" y="196" class="f-mini">一部だけ書き足す</text>
+      <text x="528" y="216" class="f-mini t-keep">元の行はそのまま</text>
+
+      <line x1="352" y1="20" x2="352" y2="230" class="f-tie" />
+
+      <g>
+        <rect x="24" y="266" width="18" height="9" class="f-keep" />
+        <text x="52" y="275" class="f-mini f-left t-keep">元からある行</text>
+        <rect x="200" y="266" width="18" height="9" class="f-add" />
+        <text x="228" y="275" class="f-mini f-left t-add">足された行</text>
+        <rect x="368" y="266" width="18" height="9" class="f-gone" />
+        <text x="396" y="275" class="f-mini f-left t-gone">消えてしまう側</text>
+      </g>
+      <text x="24" y="316" class="f-mini f-left">/init が使ったのは右。だから 12 KB の本文が残った。</text>
+    </svg>
+  )}
+
+  {kind === 'reading-order' && (
+    <svg viewBox="0 0 700 260" role="img" aria-label="30 手のうち 29 手は読むだけで、書くのは最後の 1 手。CLAUDE.md を読むのは 2 手目">
+      <text x="300" y="40" class="f-cap">読むだけ　29 手</text>
+      <text x="644" y="40" class="f-cap t-add">書く 1 手</text>
+
+      <rect x="40" y="58" width="562" height="42" class="f-keep" />
+      <rect x="602" y="58" width="58" height="42" class="f-add" />
+
+      <text x="631" y="85" class="f-mini t-add">Edit ×3</text>
+
+      <line x1="78" y1="100" x2="78" y2="128" class="f-tie" />
+      <text x="78" y="148" class="f-mini">場所を見る</text>
+      <text x="78" y="166" class="f-mini">ls・find</text>
+
+      <line x1="190" y1="100" x2="190" y2="128" class="f-line" />
+      <text x="190" y="148" class="f-cap t-keep">CLAUDE.md</text>
+      <text x="190" y="166" class="f-mini t-keep">2 手目に読む</text>
+
+      <line x1="305" y1="100" x2="305" y2="128" class="f-tie" />
+      <text x="305" y="148" class="f-mini">部品の一覧</text>
+
+      <line x1="400" y1="100" x2="400" y2="128" class="f-tie" />
+      <text x="400" y="148" class="f-mini">設定・命令</text>
+
+      <line x1="483" y1="100" x2="483" y2="128" class="f-tie" />
+      <text x="483" y="148" class="f-mini">自動検査</text>
+
+      <line x1="566" y1="100" x2="566" y2="128" class="f-tie" />
+      <text x="566" y="148" class="f-mini">本体・他の AI</text>
+
+      <text x="350" y="214" class="f-mini">書く前にこれだけ読む。書くのは最後のひと押しだけ。</text>
+    </svg>
+  )}
+
+  <figcaption>{caption}</figcaption>
+</figure>
