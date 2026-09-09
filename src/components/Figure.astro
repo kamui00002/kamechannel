@@ -116,73 +116,96 @@ const { kind, caption } = Astro.props as Figure;
   )}
 
   {kind === 'md-tree' && (
-    <svg viewBox="0 0 700 380" role="img" aria-label="起動したフォルダの CLAUDE.md は読まれる。親をたどって上のフォルダのものも読まれる。子フォルダと兄弟フォルダのものは読まれない。~/.claude のものはどこで起動しても読まれる">
-      {/* 上へ遡る矢印 */}
-      <line x1="52" y1="228" x2="52" y2="108" class="f-line" />
-      <polygon points="52,94 44,112 60,112" class="f-arrow" />
-      <text x="70" y="150" class="f-mini f-left">上へ探す</text>
+    <svg viewBox="0 0 700 390" role="img" aria-label="フォルダの入れ子の図。作業を始めた kamechannel の CLAUDE.md と、上にたどった先のホームの CLAUDE.md は読まれる。途中のブログ関係フォルダには CLAUDE.md が無いので素通りする。kamechannel の下の src の CLAUDE.md と、横に並ぶ onakenblog の CLAUDE.md は読まれない。ホームの .claude の CLAUDE.md はどこで作業しても読まれる">
+      {/* 上へたどる矢印 */}
+      <line x1="26" y1="255" x2="26" y2="96" class="f-line" />
+      <polygon points="26,82 18,100 34,100" class="f-arrow" />
+      <text transform="rotate(-90 12 180)" x="12" y="180" class="f-mini">上へたどる</text>
 
-      {/* 親 */}
-      <rect x="150" y="86" width="330" height="44" rx="6" class="f-add" />
-      <text x="170" y="114" class="f-mini f-left t-add">~/CLAUDE.md（親）</text>
-      <text x="500" y="114" class="f-mini f-left t-add">読まれる</text>
+      {/* ホーム */}
+      <text x="46" y="40" class="f-mini f-left">~/（ホーム）</text>
 
-      {/* 中間（CLAUDE.md が無い） */}
-      <rect x="150" y="146" width="330" height="44" rx="6" class="f-paper" />
-      <text x="170" y="174" class="f-mini f-left">~/ブログ関係/ … CLAUDE.md が無い</text>
-      <text x="500" y="174" class="f-mini f-left">素通り</text>
+      {/* 枝: ホームの子 */}
+      <line x1="58" y1="46" x2="58" y2="163" class="f-tie" />
+      <line x1="58" y1="75"  x2="72" y2="75"  class="f-tie" />
+      <line x1="58" y1="119" x2="72" y2="119" class="f-tie" />
+      <line x1="58" y1="163" x2="72" y2="163" class="f-tie" />
 
-      {/* 起動フォルダ */}
-      <rect x="150" y="206" width="330" height="44" rx="6" class="f-add" />
-      <text x="170" y="234" class="f-mini f-left t-add">kamechannel/CLAUDE.md</text>
-      <text x="500" y="234" class="f-mini f-left t-add">読まれる</text>
-      <text x="30" y="234" class="f-mini f-left">▶ ここで起動</text>
+      {/* .claude/CLAUDE.md — 別枠 */}
+      <rect x="72" y="58" width="378" height="34" rx="6" class="f-add" />
+      <text x="88" y="81" class="f-mini f-left t-add">.claude/CLAUDE.md</text>
+      <text x="470" y="81" class="f-mini f-left t-add">★ 別枠。いつでも読まれる</text>
 
-      {/* 子 */}
-      <rect x="200" y="266" width="280" height="40" rx="6" class="f-gone" />
-      <text x="220" y="292" class="f-mini f-left t-gone">└ src/CLAUDE.md（子）</text>
-      <text x="500" y="292" class="f-mini f-left t-gone">読まれない</text>
+      {/* ~/CLAUDE.md */}
+      <rect x="72" y="102" width="378" height="34" rx="6" class="f-add" />
+      <text x="88" y="125" class="f-mini f-left t-add">CLAUDE.md</text>
+      <text x="470" y="125" class="f-mini f-left t-add">読まれる</text>
 
-      {/* 兄弟 */}
-      <rect x="200" y="316" width="280" height="40" rx="6" class="f-gone" />
-      <text x="220" y="342" class="f-mini f-left t-gone">onakenblog/CLAUDE.md（兄弟）</text>
-      <text x="500" y="342" class="f-mini f-left t-gone">読まれない</text>
+      {/* ブログ関係/ — フォルダ（枠なし） */}
+      <text x="88" y="169" class="f-mini f-left">ブログ関係/</text>
+      <text x="470" y="169" class="f-mini f-left">無いので素通り</text>
 
-      {/* 別枠 */}
-      <rect x="150" y="26" width="330" height="44" rx="6" class="f-add" />
-      <text x="170" y="54" class="f-mini f-left t-add">~/.claude/CLAUDE.md</text>
-      <text x="500" y="54" class="f-mini f-left t-add">いつでも読まれる</text>
+      {/* 枝: ブログ関係の子 */}
+      <line x1="90" y1="176" x2="90" y2="339" class="f-tie" />
+      <line x1="90" y1="207" x2="104" y2="207" class="f-tie" />
+      <line x1="90" y1="339" x2="104" y2="339" class="f-tie" />
+
+      {/* kamechannel/ — フォルダ（枠なし） */}
+      <text x="120" y="213" class="f-mini f-left">kamechannel/</text>
+      <text x="470" y="213" class="f-mini f-left">▶ ここで作業を始めた</text>
+
+      {/* 枝: kamechannel の子 */}
+      <line x1="122" y1="220" x2="122" y2="295" class="f-tie" />
+      <line x1="122" y1="251" x2="136" y2="251" class="f-tie" />
+      <line x1="122" y1="295" x2="136" y2="295" class="f-tie" />
+
+      {/* kamechannel/CLAUDE.md */}
+      <rect x="136" y="234" width="314" height="34" rx="6" class="f-add" />
+      <text x="152" y="257" class="f-mini f-left t-add">CLAUDE.md</text>
+      <text x="470" y="257" class="f-mini f-left t-add">読まれる</text>
+
+      {/* src/CLAUDE.md — 子 */}
+      <rect x="136" y="278" width="314" height="34" rx="6" class="f-gone" />
+      <text x="152" y="301" class="f-mini f-left t-gone">src/CLAUDE.md</text>
+      <text x="470" y="301" class="f-mini f-left t-gone">読まれない（下は見ない）</text>
+
+      {/* onakenblog/CLAUDE.md — 横 */}
+      <rect x="104" y="322" width="346" height="34" rx="6" class="f-gone" />
+      <text x="120" y="345" class="f-mini f-left t-gone">onakenblog/CLAUDE.md</text>
+      <text x="470" y="345" class="f-mini f-left t-gone">読まれない（横も見ない）</text>
+
+      <text x="26" y="380" class="f-mini f-left">作業を始めた場所から、上へたどって拾います。下と横は見ません</text>
     </svg>
   )}
 
   {kind === 'aikotoba' && (
-    <svg viewBox="0 0 700 380" role="img" aria-label="6 つの合言葉のうち、起動フォルダの本文 CHARLIE、起動フォルダのアットマーク先 ECHO、親フォルダの本文 ALPHA の 3 つが届いた。親フォルダのアットマーク先 BRAVO と FOXTROT、兄弟フォルダの DELTA の 3 つは届かなかった">
-      <text x="30" y="30" class="f-mini f-left">隠した場所</text>
+    <svg viewBox="0 0 700 380" role="img" aria-label="6 か所に隠した言葉のうち、起動したフォルダの本文、起動したフォルダからアットマークで呼んだ先、親フォルダの本文の 3 つが届いた。親フォルダからアットマークで呼んだ先は相対パスでも絶対パスでも届かず、隣の兄弟フォルダの本文も届かなかった">
+      <text x="30" y="30" class="f-mini f-left">言葉を隠した場所</text>
       <text x="560" y="30" class="f-mini f-left">結果</text>
       <line x1="30" y1="42" x2="670" y2="42" class="f-line" />
 
       <rect x="30" y="58" width="500" height="40" rx="6" class="f-add" />
-      <text x="48" y="83" class="f-mini f-left t-add">CHARLIE ／ 起動したフォルダの CLAUDE.md 本文</text>
+      <text x="48" y="83" class="f-mini f-left t-add">起動したフォルダの CLAUDE.md 本文</text>
       <text x="560" y="83" class="f-mini f-left t-add">届いた</text>
 
       <rect x="30" y="108" width="500" height="40" rx="6" class="f-add" />
-      <text x="48" y="133" class="f-mini f-left t-add">ECHO ／ 起動したフォルダから @ で呼んだ先</text>
+      <text x="48" y="133" class="f-mini f-left t-add">起動したフォルダから @ で呼んだ先</text>
       <text x="560" y="133" class="f-mini f-left t-add">届いた</text>
 
       <rect x="30" y="158" width="500" height="40" rx="6" class="f-add" />
-      <text x="48" y="183" class="f-mini f-left t-add">ALPHA ／ 親フォルダの CLAUDE.md 本文</text>
+      <text x="48" y="183" class="f-mini f-left t-add">親フォルダの CLAUDE.md 本文</text>
       <text x="560" y="183" class="f-mini f-left t-add">届いた</text>
 
       <rect x="30" y="212" width="500" height="40" rx="6" class="f-gone" />
-      <text x="48" y="237" class="f-mini f-left t-gone">BRAVO ／ 親から @ で呼んだ先（相対パス）</text>
+      <text x="48" y="237" class="f-mini f-left t-gone">親フォルダから @ で呼んだ先（相対パス）</text>
       <text x="560" y="237" class="f-mini f-left t-gone">届かない</text>
 
       <rect x="30" y="262" width="500" height="40" rx="6" class="f-gone" />
-      <text x="48" y="287" class="f-mini f-left t-gone">FOXTROT ／ 親から @ で呼んだ先（絶対パス）</text>
+      <text x="48" y="287" class="f-mini f-left t-gone">親フォルダから @ で呼んだ先（絶対パス）</text>
       <text x="560" y="287" class="f-mini f-left t-gone">届かない</text>
 
       <rect x="30" y="312" width="500" height="40" rx="6" class="f-gone" />
-      <text x="48" y="337" class="f-mini f-left t-gone">DELTA ／ 兄弟フォルダの CLAUDE.md 本文</text>
+      <text x="48" y="337" class="f-mini f-left t-gone">隣の兄弟フォルダの CLAUDE.md 本文</text>
       <text x="560" y="337" class="f-mini f-left t-gone">届かない</text>
 
       <text x="30" y="372" class="f-mini f-left">上の 3 つが緑だから、下の 3 つを「届かなかった」と言い切れます（陽性対照）</text>
@@ -190,33 +213,73 @@ const { kind, caption } = Astro.props as Figure;
   )}
 
   {kind === 'atmark' && (
-    <svg viewBox="0 0 700 300" role="img" aria-label="起動したフォルダの CLAUDE.md に書いた @ の行は、呼んだ先のファイルの中身に置き換わる。上に遡って読まれた親の CLAUDE.md に書いた @ の行は、置き換わらずそのまま">
+    <svg viewBox="0 0 700 300" role="img" aria-label="起動したフォルダの CLAUDE.md に書いたアットマークの行は、呼んだ先のファイルの中身に置き換わる。上に遡って読まれた親の CLAUDE.md に書いたアットマークの行は、置き換わらずそのまま">
       <text x="150" y="34" class="f-cap">起動したフォルダに書いたとき</text>
       <rect x="30" y="52" width="240" height="76" rx="6" class="f-paper" />
-      <text x="46" y="80" class="f-mini f-left">合言葉その3 は CHARLIE</text>
-      <text x="46" y="106" class="f-mini f-left t-add">@./ko-yonda.md</text>
+      <text x="46" y="80" class="f-mini f-left">起動したフォルダの CLAUDE.md</text>
+      <text x="46" y="106" class="f-mini f-left t-add">@./yonda.md</text>
 
       <line x1="150" y1="140" x2="150" y2="176" class="f-line" />
       <polygon points="150,190 142,172 158,172" class="f-arrow" />
 
       <rect x="30" y="200" width="240" height="60" rx="6" class="f-add" />
-      <text x="150" y="236" class="f-mini t-add">中身に置き換わった（ECHO 届いた）</text>
+      <text x="150" y="224" class="f-mini t-add">中身に置き換わった</text>
+      <text x="150" y="244" class="f-mini t-add">（呼んだ先の言葉が届いた）</text>
 
       <line x1="350" y1="52" x2="350" y2="270" class="f-tie" />
 
       <text x="550" y="34" class="f-cap">上に遡って読まれたほうに書いたとき</text>
       <rect x="430" y="52" width="240" height="76" rx="6" class="f-paper" />
-      <text x="446" y="80" class="f-mini f-left">合言葉その1 は ALPHA</text>
-      <text x="446" y="106" class="f-mini f-left t-gone">@/Users/…/oya-zettai.md</text>
+      <text x="446" y="80" class="f-mini f-left">親フォルダの CLAUDE.md</text>
+      <text x="446" y="106" class="f-mini f-left t-gone">@/Users/…/yonda.md</text>
 
       <line x1="550" y1="140" x2="550" y2="176" class="f-line" />
       <polygon points="550,190 542,172 558,172" class="f-arrow" />
 
       <rect x="430" y="200" width="240" height="60" rx="6" class="f-gone" />
-      <text x="550" y="230" class="f-mini t-gone">置き換わらなかった</text>
-      <text x="550" y="250" class="f-mini t-gone">（FOXTROT 届かない）</text>
+      <text x="550" y="224" class="f-mini t-gone">置き換わらなかった</text>
+      <text x="550" y="244" class="f-mini t-gone">（絶対パスにしても同じ）</text>
 
       <text x="30" y="288" class="f-mini f-left">同じ一行。違うのは、書いてある CLAUDE.md がどっちか、だけ</text>
+    </svg>
+  )}
+
+  {kind === 'hyoshiki' && (
+    <svg viewBox="0 0 700 396" role="img" aria-label="CLAUDE.md は道路標識、Hooks は踏切の遮断機。標識は立ててある看板で、運転手が読んで守る。守らなくてもその場では何も起きない。書けるのは意味で、何百種類でも立てられる。遮断機は機械で、装置が勝手に降りる。守らなければ物理的に通れない。書けるのは通す通さないの形だけで、線路がある場所にしか作れない">
+      <text x="290" y="30" class="f-cap t-keep">標識 ＝ CLAUDE.md</text>
+      <text x="560" y="30" class="f-cap t-gone">遮断機 ＝ Hooks</text>
+      <line x1="30" y1="44" x2="670" y2="44" class="f-line" />
+
+      <line x1="418" y1="52" x2="418" y2="352" class="f-tie" />
+
+      <text x="30" y="76" class="f-mini f-left">正体</text>
+      <text x="170" y="76" class="f-mini f-left t-keep">立ててある看板</text>
+      <text x="440" y="76" class="f-mini f-left t-gone">機械</text>
+
+      <text x="30" y="124" class="f-mini f-left">誰が実行する</text>
+      <text x="170" y="124" class="f-mini f-left t-keep">運転手が読んで守る</text>
+      <text x="440" y="124" class="f-mini f-left t-gone">装置が勝手に降りる</text>
+
+      <text x="30" y="172" class="f-mini f-left">守らなかったら</text>
+      <text x="170" y="172" class="f-mini f-left t-keep">その場では何も起きない</text>
+      <text x="440" y="172" class="f-mini f-left t-gone">物理的に通れない</text>
+
+      <text x="30" y="220" class="f-mini f-left">書けること</text>
+      <text x="170" y="220" class="f-mini f-left t-keep">この先カーブ、歩行者優先</text>
+      <text x="170" y="240" class="f-mini f-left t-keep">＝意味</text>
+      <text x="440" y="220" class="f-mini f-left t-gone">通す／通さない</text>
+      <text x="440" y="240" class="f-mini f-left t-gone">＝形</text>
+
+      <text x="30" y="288" class="f-mini f-left">言えること</text>
+      <text x="170" y="288" class="f-mini f-left t-keep">「こうして」</text>
+      <text x="440" y="288" class="f-mini f-left t-gone">「ダメ」だけ</text>
+
+      <text x="30" y="336" class="f-mini f-left">数</text>
+      <text x="170" y="336" class="f-mini f-left t-keep">何百種類でも立てられる</text>
+      <text x="440" y="336" class="f-mini f-left t-gone">線路がある場所にしか</text>
+      <text x="440" y="356" class="f-mini f-left t-gone">作れない</text>
+
+      <text x="30" y="388" class="f-mini f-left">標識は読んでほしいこと。遮断機は絶対に通してはいけないところ</text>
     </svg>
   )}
 

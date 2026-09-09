@@ -39,7 +39,7 @@ export interface Figure {
   caption: string;
 }
 
-const FIGURE_KINDS = ['bytes', 'write-edit', 'reading-order', 'md-tree', 'aikotoba', 'atmark'] as const;
+const FIGURE_KINDS = ['bytes', 'write-edit', 'reading-order', 'md-tree', 'aikotoba', 'atmark', 'hyoshiki'] as const;
 
 export interface CatalogItem {
   id: string;
