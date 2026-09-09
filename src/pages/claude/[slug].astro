@@ -15,6 +15,16 @@ const item = findItem(entry.sourceId);
  * 検証 K9 が「note が実際にページへ出ているか」を dist で確かめています。
  */
 const paragraphs = entry.note.trim().split(/\n{2,}/);
+
+/*
+ * あわせて読む。データが持つのは slug だけで、題は記事本体から引く。
+ * ⚠ 題をデータに書き写さないこと。書き写すと題を直したときに片方だけ古くなります。
+ *    無い slug は検証 K11 が落とすので、ここに来る時点で必ず見つかります。
+ */
+const related = (entry.seeAlso ?? []).flatMap((s) => {
+  const m = entries.find((e) => e.slug === s);
+  return m ? [m] : [];
+});
 ---
 
 <BaseLayout
@@ -68,6 +78,17 @@ const paragraphs = entry.note.trim().split(/\n{2,}/);
 
     {item?.credit && (
       <p class="credit"><strong>出典:</strong> {item.credit}</p>
+    )}
+
+    {related.length > 0 && (
+      <nav class="see-also">
+        <h2>あわせて読む</h2>
+        <ul>
+          {related.map((r) => (
+            <li><a href={`/claude/${r.slug}/`}>{r.title}</a></li>
+          ))}
+        </ul>
+      </nav>
     )}
   </article>
   <p><a href="/">← 一覧へ</a></p>

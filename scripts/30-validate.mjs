@@ -12,7 +12,7 @@
  *   「にあたるもの」を、この中身の形に合わせて作り直したのがこの K1〜K9 です。
  *
  * 使い方:
- *   npm run validate              データ検証 K1〜K5
+ *   npm run validate              データ検証 K1〜K5・K11
  *   npm run validate:dist         生成物検証 K6〜K9（dist/ が無ければスキップではなく FAIL）
  *   npm run validate:dist -- --self-test   陽性対照。**先に fail を確かめる**
  */
@@ -103,7 +103,7 @@ if (selfTest) {
 
 // ══════════════════════════════════════════════════
 if (!distMode) {
-  console.log(requireReviewed ? 'データ検証 K1〜K5 + K10（公開直前）' : 'データ検証 K1〜K5');
+  console.log(requireReviewed ? 'データ検証 K1〜K5・K11 + K10（公開直前）' : 'データ検証 K1〜K5・K11');
 
   // K1 — 名簿の形（path の有無）と、path の実在。推測で書かれた path を通さない。
   //
@@ -147,6 +147,24 @@ if (!distMode) {
   if (thin.length) ng('K4', `note が ${NOTE_MIN} 字未満か TODO のまま: ${thin.map((e) => e.file).join(', ')}`);
   else if (entries.length === 0) ng('K4', 'entry が 1 件もありません');
   else ok('K4', `entry ${entries.length} 件すべてに ${NOTE_MIN} 字以上の note がある`);
+
+  /*
+   * K11 — 記事どうしのリンク切れを止める。
+   * ⚠ 無い記事を指してもビルドは通り、誌面も普通に見えます。押して初めて 404 になるので、
+   *    書いた本人は気づけません。だから指した時点で落とします。
+   */
+  const slugSet = new Set(entries.map((e) => e.data?.slug));
+  const broken = [];
+  for (const e of entries) {
+    const list = e.data?.seeAlso ?? [];
+    if (!Array.isArray(list)) { broken.push(`${e.file}: seeAlso が配列ではない`); continue; }
+    for (const s of list) {
+      if (s === e.data?.slug) broken.push(`${e.file}: 自分自身を指している（${s}）`);
+      else if (!slugSet.has(s)) broken.push(`${e.file}: 無い記事を指している（${s}）`);
+    }
+  }
+  if (broken.length) ng('K11', broken.join(' / '));
+  else ok('K11', `entry ${entries.length} 件の「あわせて読む」にリンク切れは無い`);
 
   // K10 — 公開の直前だけ。運営者が註を読み返したか。
   if (requireReviewed) {

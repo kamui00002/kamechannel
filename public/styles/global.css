@@ -179,6 +179,14 @@ strong { font-weight: 900; font-family: var(--go); color: var(--bg);
 .credit strong { background: none; color: var(--fg); font-family: var(--gon);
   font-weight: 700; padding: 0; }
 
+/* ── あわせて読む ── */
+/* ⚠ 出典（.credit）と同じ幅・同じ字送りに揃える。記事末尾の付け足しは
+   本文と見分けがつく必要があるが、見出しを大きくすると本文より目立つ。 */
+.see-also { max-width: var(--measure); margin-top: 3em; }
+.see-also h2 { margin: 0 0 8px; font-family: var(--gon); font-size: 13px;
+  font-weight: 700; color: var(--dim); letter-spacing: .04em; }
+.see-also ul { margin: 0; padding-left: 1.1em; font-size: 14px; line-height: 2; }
+
 a { color: var(--cy); text-underline-offset: 3px; }
 
 /* ══ 動き ═══════════════════════════════════════════════════════════

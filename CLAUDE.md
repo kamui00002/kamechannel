@@ -148,6 +148,7 @@
 | K7 | `dist/` にローカルの実パス・メール・IP が無い |
 | K8 | **`dist/` の記事ページを読み**、誌面に出ている `sourceId` が catalog にあり、そのページに対応する entry が実在する（**allowlist-in の出口**。K3 はデータ側、K8 は生成物側） |
 | K9 | 記事ページが実在し、note が**註の段落として**誌面へ出ている（薄いページを出さない） |
+| K11 | 記事の「あわせて読む」（`seeAlso`）が**実在する記事**を指している（無い slug・自分自身・配列でない、を落とす）。⚠ リンク切れはビルドも誌面も素通りし、押して初めて 404 になる |
 | K10 | **公開直前だけ。** 全記事が `reviewed: true`（`npm run validate:release`／`deploy.yml` が使う） |
 
 ### 陽性対照を先に取る（`rules/workflow.md`「検証の作法」）
@@ -217,8 +218,8 @@ K8 は **`dist/` を一度も読んでいませんでした。** 中身は entry
 |---|---|
 | `npm run harvest` | 層1。catalog の項目だけ `~/.claude` を棚卸し → `queue.yaml`。**ローカル専用**（CI に `~/.claude` は無い） |
 | `npm run new:entry -- --id <catalog の id>` | 層2。記事の雛形。note は TODO なので**そのままでは通らない** |
-| `npm run validate` | K1〜K5。commit 前に必ず |
-| `npm run validate:release` | K1〜K5 + **K10**（全記事が `reviewed: true`）。`deploy.yml` が使う |
+| `npm run validate` | K1〜K5・K11。commit 前に必ず |
+| `npm run validate:release` | K1〜K5・K11 + **K10**（全記事が `reviewed: true`）。`deploy.yml` が使う |
 | `npm run build` | Astro ビルド → `dist/` |
 | `npm run validate:dist` | K6〜K9。`dist/` が無いと**スキップではなく FAIL** |
 | `npm run validate:self-test` | 陽性対照。検知器が生きているかを先に確かめる |
