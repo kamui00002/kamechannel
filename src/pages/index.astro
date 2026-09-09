@@ -4,15 +4,19 @@ import { entries, findItem, KIND_LABEL } from '../lib/entries';
 ---
 
 <BaseLayout
-  title="KaMeChannel — Claude Code の運用記録"
-  description="自分の ~/.claude にあるスキル・スラッシュコマンドを、なぜそう書いたかの註つきで置いています。"
+  title="KaMeChannel — Claude Code を AI と一緒に学ぶ記録"
+  description="Claude Code を使っていて分からなかったことを、AI と一緒に調べながら学んでいます。試したことも、勘違いしていたことも、そのまま書いています。"
   path="/"
 >
   <h1>KaMeChannel</h1>
+  {/* ⚠ ここは方針そのもの。catalog の builtins を増やす路線に変えたとき（2026-09-08）、
+      この文だけ「~/.claude のスキルを取り上げる」の古いままだった。
+      載せるものを変えるときは、この文も一緒に直すこと。 */}
   <p class="lead">
-    Claude Code をどう運用しているかの記録です。手元の <code>~/.claude</code> にある
-    スキルやスラッシュコマンドを 1 つずつ取り上げて、<strong>なぜそう書いたか</strong>を添えています。
-    設定ファイルの写しではなく、そこに至った判断のほうを残す場所です。
+    Claude Code を使っていて「これ、どういうこと？」と思ったことを、
+    <strong>AI と一緒に学んだ記録</strong>を残していきます！
+    ちゃんと試してから書くので、うまくいかなかったことや、
+    勘違いしていたことも、そのまま置いてあります。
   </p>
 
   <ul class="list">
