@@ -5,8 +5,8 @@
  * ⚠ **絵はここにしかありません。** 記事データ（yaml）が持つのは「どこに・どの図を・
  *    どういう説明で」の 3 つだけです。SVG を yaml に書くと、記事データが生の HTML
  *    置き場になります（src/lib/entries.ts の Figure の註釈を参照）。
- * ⚠ 色は変数だけ。しかも**役割を固定**します: 青 = 元のまま / 緑 = 足された /
- *    赤 = 消える。図をまたいで同じ意味にしないと、読み手が毎回覚え直します。
+ * ⚠ 色は変数だけ。しかも**役割を固定**します: 青 = 元のまま / 緑 = 足された・届いた /
+ *    赤 = 消える・届かない。図をまたいで同じ意味にしないと、読み手が毎回覚え直します。
  */
 import type { Figure } from '../lib/entries';
 const { kind, caption } = Astro.props as Figure;
@@ -112,6 +112,111 @@ const { kind, caption } = Astro.props as Figure;
       <text x="566" y="148" class="f-mini">本体・他の AI</text>
 
       <text x="350" y="214" class="f-mini">書く前にこれだけ読む。書くのは最後のひと押しだけ。</text>
+    </svg>
+  )}
+
+  {kind === 'md-tree' && (
+    <svg viewBox="0 0 700 380" role="img" aria-label="起動したフォルダの CLAUDE.md は読まれる。親をたどって上のフォルダのものも読まれる。子フォルダと兄弟フォルダのものは読まれない。~/.claude のものはどこで起動しても読まれる">
+      {/* 上へ遡る矢印 */}
+      <line x1="52" y1="228" x2="52" y2="108" class="f-line" />
+      <polygon points="52,94 44,112 60,112" class="f-arrow" />
+      <text x="70" y="150" class="f-mini f-left">上へ探す</text>
+
+      {/* 親 */}
+      <rect x="150" y="86" width="330" height="44" rx="6" class="f-add" />
+      <text x="170" y="114" class="f-mini f-left t-add">~/CLAUDE.md（親）</text>
+      <text x="500" y="114" class="f-mini f-left t-add">読まれる</text>
+
+      {/* 中間（CLAUDE.md が無い） */}
+      <rect x="150" y="146" width="330" height="44" rx="6" class="f-paper" />
+      <text x="170" y="174" class="f-mini f-left">~/ブログ関係/ … CLAUDE.md が無い</text>
+      <text x="500" y="174" class="f-mini f-left">素通り</text>
+
+      {/* 起動フォルダ */}
+      <rect x="150" y="206" width="330" height="44" rx="6" class="f-add" />
+      <text x="170" y="234" class="f-mini f-left t-add">kamechannel/CLAUDE.md</text>
+      <text x="500" y="234" class="f-mini f-left t-add">読まれる</text>
+      <text x="30" y="234" class="f-mini f-left">▶ ここで起動</text>
+
+      {/* 子 */}
+      <rect x="200" y="266" width="280" height="40" rx="6" class="f-gone" />
+      <text x="220" y="292" class="f-mini f-left t-gone">└ src/CLAUDE.md（子）</text>
+      <text x="500" y="292" class="f-mini f-left t-gone">読まれない</text>
+
+      {/* 兄弟 */}
+      <rect x="200" y="316" width="280" height="40" rx="6" class="f-gone" />
+      <text x="220" y="342" class="f-mini f-left t-gone">onakenblog/CLAUDE.md（兄弟）</text>
+      <text x="500" y="342" class="f-mini f-left t-gone">読まれない</text>
+
+      {/* 別枠 */}
+      <rect x="150" y="26" width="330" height="44" rx="6" class="f-add" />
+      <text x="170" y="54" class="f-mini f-left t-add">~/.claude/CLAUDE.md</text>
+      <text x="500" y="54" class="f-mini f-left t-add">いつでも読まれる</text>
+    </svg>
+  )}
+
+  {kind === 'aikotoba' && (
+    <svg viewBox="0 0 700 380" role="img" aria-label="6 つの合言葉のうち、起動フォルダの本文 CHARLIE、起動フォルダのアットマーク先 ECHO、親フォルダの本文 ALPHA の 3 つが届いた。親フォルダのアットマーク先 BRAVO と FOXTROT、兄弟フォルダの DELTA の 3 つは届かなかった">
+      <text x="30" y="30" class="f-mini f-left">隠した場所</text>
+      <text x="560" y="30" class="f-mini f-left">結果</text>
+      <line x1="30" y1="42" x2="670" y2="42" class="f-line" />
+
+      <rect x="30" y="58" width="500" height="40" rx="6" class="f-add" />
+      <text x="48" y="83" class="f-mini f-left t-add">CHARLIE ／ 起動したフォルダの CLAUDE.md 本文</text>
+      <text x="560" y="83" class="f-mini f-left t-add">届いた</text>
+
+      <rect x="30" y="108" width="500" height="40" rx="6" class="f-add" />
+      <text x="48" y="133" class="f-mini f-left t-add">ECHO ／ 起動したフォルダから @ で呼んだ先</text>
+      <text x="560" y="133" class="f-mini f-left t-add">届いた</text>
+
+      <rect x="30" y="158" width="500" height="40" rx="6" class="f-add" />
+      <text x="48" y="183" class="f-mini f-left t-add">ALPHA ／ 親フォルダの CLAUDE.md 本文</text>
+      <text x="560" y="183" class="f-mini f-left t-add">届いた</text>
+
+      <rect x="30" y="212" width="500" height="40" rx="6" class="f-gone" />
+      <text x="48" y="237" class="f-mini f-left t-gone">BRAVO ／ 親から @ で呼んだ先（相対パス）</text>
+      <text x="560" y="237" class="f-mini f-left t-gone">届かない</text>
+
+      <rect x="30" y="262" width="500" height="40" rx="6" class="f-gone" />
+      <text x="48" y="287" class="f-mini f-left t-gone">FOXTROT ／ 親から @ で呼んだ先（絶対パス）</text>
+      <text x="560" y="287" class="f-mini f-left t-gone">届かない</text>
+
+      <rect x="30" y="312" width="500" height="40" rx="6" class="f-gone" />
+      <text x="48" y="337" class="f-mini f-left t-gone">DELTA ／ 兄弟フォルダの CLAUDE.md 本文</text>
+      <text x="560" y="337" class="f-mini f-left t-gone">届かない</text>
+
+      <text x="30" y="372" class="f-mini f-left">上の 3 つが緑だから、下の 3 つを「届かなかった」と言い切れます（陽性対照）</text>
+    </svg>
+  )}
+
+  {kind === 'atmark' && (
+    <svg viewBox="0 0 700 300" role="img" aria-label="起動したフォルダの CLAUDE.md に書いた @ の行は、呼んだ先のファイルの中身に置き換わる。上に遡って読まれた親の CLAUDE.md に書いた @ の行は、置き換わらずそのまま">
+      <text x="150" y="34" class="f-cap">起動したフォルダに書いたとき</text>
+      <rect x="30" y="52" width="240" height="76" rx="6" class="f-paper" />
+      <text x="46" y="80" class="f-mini f-left">合言葉その3 は CHARLIE</text>
+      <text x="46" y="106" class="f-mini f-left t-add">@./ko-yonda.md</text>
+
+      <line x1="150" y1="140" x2="150" y2="176" class="f-line" />
+      <polygon points="150,190 142,172 158,172" class="f-arrow" />
+
+      <rect x="30" y="200" width="240" height="60" rx="6" class="f-add" />
+      <text x="150" y="236" class="f-mini t-add">中身に置き換わった（ECHO 届いた）</text>
+
+      <line x1="350" y1="52" x2="350" y2="270" class="f-tie" />
+
+      <text x="550" y="34" class="f-cap">上に遡って読まれたほうに書いたとき</text>
+      <rect x="430" y="52" width="240" height="76" rx="6" class="f-paper" />
+      <text x="446" y="80" class="f-mini f-left">合言葉その1 は ALPHA</text>
+      <text x="446" y="106" class="f-mini f-left t-gone">@/Users/…/oya-zettai.md</text>
+
+      <line x1="550" y1="140" x2="550" y2="176" class="f-line" />
+      <polygon points="550,190 542,172 558,172" class="f-arrow" />
+
+      <rect x="430" y="200" width="240" height="60" rx="6" class="f-gone" />
+      <text x="550" y="230" class="f-mini t-gone">置き換わらなかった</text>
+      <text x="550" y="250" class="f-mini t-gone">（FOXTROT 届かない）</text>
+
+      <text x="30" y="288" class="f-mini f-left">同じ一行。違うのは、書いてある CLAUDE.md がどっちか、だけ</text>
     </svg>
   )}
 
