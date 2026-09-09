@@ -2,9 +2,9 @@
 /*
  * すべてのページの外枠。
  *
- * ■ まだ「器」の段階
- *   中身（何を記事にするか）が決まっていないので、意匠は最小限にしてある。
- *   おなけんブログのような強い誌面コンセプトは、中身が決まってから当てる。
+ * ■ 意匠は「大判」を当ててある（2026-09-09 決定）
+ *   原典は design-variants/kamechannel/05-typo.html と 08-reactive.html。
+ *   刷り色の役割と、明色版を持たない理由は public/styles/global.css の冒頭に書いてある。
  *   **ここに場当たりの装飾を足さないこと。** 足すなら方針を決めてから。
  */
 export interface Props {
@@ -27,6 +27,37 @@ const canonical = new URL(path, Astro.site).href;
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={canonical} />
     <link rel="stylesheet" href="/styles/global.css" />
+    <script is:inline>
+      /*
+       * 動きの合図だけを付ける小さな仕掛け。
+       *
+       * ⚠ **順番が命。** 既定は「動いた後の姿」で、この JS が動いたときだけ隠す。
+       *    先に隠してから JS で出す作りにすると、JS が動かない場で本文が
+       *    透明のまま消える。2026-09-09 に実際そうなった（描画の止まった枠で全消え）。
+       * ⚠ 保険を 2 つ置く。合図が一度も来なければ全部出す。読めることが動きより上。
+       * ⚠ 動きを望まない設定の人には .mo を付けない（＝一切動かない）。
+       */
+      (function () {
+        if (!('IntersectionObserver' in window)) return;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        document.documentElement.classList.add('mo');
+        var els = [], fired = false;
+        function revealAll() { els.forEach(function (e) { e.classList.add('in'); }); }
+        function start() {
+          els = [].slice.call(document.querySelectorAll('.note, .fig, .row'));
+          var io = new IntersectionObserver(function (es) {
+            es.forEach(function (e) {
+              if (e.isIntersecting) { fired = true; e.target.classList.add('in'); io.unobserve(e.target); }
+            });
+          }, { threshold: 0.15 });
+          els.forEach(function (el) { io.observe(el); });
+          setTimeout(function () { if (!fired) { io.disconnect(); revealAll(); } }, 1200);
+        }
+        if (document.readyState === 'loading') addEventListener('DOMContentLoaded', start);
+        else start();
+        addEventListener('load', function () { setTimeout(function () { if (!fired) revealAll(); }, 1400); });
+      })();
+    </script>
   </head>
   <body>
     <header class="head">
