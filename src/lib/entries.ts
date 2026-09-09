@@ -34,12 +34,12 @@ export interface Figure {
   /** 註の何段落目の後ろに置くか（1 始まり） */
   after: number;
   /** どの絵か。Figure.astro が知っている名前だけ */
-  kind: 'bytes' | 'write-edit' | 'reading-order';
+  kind: (typeof FIGURE_KINDS)[number];
   /** 図の下に出る一行。図だけ見て意味が取れるように書く */
   caption: string;
 }
 
-const FIGURE_KINDS = ['bytes', 'write-edit', 'reading-order'];
+const FIGURE_KINDS = ['bytes', 'write-edit', 'reading-order', 'md-tree', 'aikotoba', 'atmark'] as const;
 
 export interface CatalogItem {
   id: string;
@@ -99,7 +99,47 @@ for (const e of entries) {
       throw new Error(`${e.slug}: 図の after が範囲外（${f.after}）。註は ${paragraphs} 段落しかありません`);
     if (!f.caption?.trim())
       throw new Error(`${e.slug}: 図に caption がありません（図だけ見て意味が取れる一行を書くこと）`);
+    /* 図の説明も素の文章として出ます。記法は効かないので記号がそのまま見えます。 */
+    if (/[`*]|\{\{/.test(f.caption))
+      throw new Error(
+        `${e.slug}: 図「${f.kind}」の説明に記法の記号があります → 「${f.caption.trim().slice(0, 30)}…」\n` +
+        '  ⚠ 説明は素の文章として出ます。「」で囲むなどしてください。'
+      );
   }
+
+  /*
+   * ⚠ 言い換え記法の取りこぼしを落とす（2026-09-09 に実際に踏んだ）。
+   *   `**「{{用語|説明}}のやつ」**` と入れ子にすると、太字の枝が先に当たって
+   *   `{{ }}` ごと太字の中身として飲み込まれ、**中括弧が誌面にそのまま出ます**。
+   *   ビルドは通り、検証 K4/K9 も字数と段落を見るだけなので通ります。
+   *   気づけるのは目で見たときだけ、という状態でした。だからここで落とします。
+   *   → 言い換えは太字の**外**に書くこと。
+   */
+  for (const p of e.note.trim().split(/\n{2,}/))
+    for (const seg of toSegments(p)) {
+      if (seg.text.includes('{{') || seg.text.includes('}}'))
+        throw new Error(
+          `${e.slug}: 言い換え記法が組まれずに誌面へ出ます → 「${seg.text.slice(0, 30)}…」\n` +
+          '  ⚠ **太字** の中に {{用語|説明}} を入れ子にできません。外に出してください。'
+        );
+      /*
+       * 組まれ残ったバッククォートも同じ形の事故です。**太字の中の `コード`** は
+       * 太字の枝が先に当たるので、バッククォートが生のまま誌面に出ます。
+       * code の枝を通った文字列からは既に取り除かれているので、
+       * ここに残っている ` は「組まれなかった」印だけです。
+       */
+      if (seg.text.includes('`'))
+        throw new Error(
+          `${e.slug}: バッククォートが生のまま誌面へ出ます → 「${seg.text.slice(0, 30)}…」\n` +
+          '  ⚠ **太字の中の `コード`** は組まれません。太字の外に出してください。'
+        );
+      /* 言い換えの本文は素の文章として出ます。記法は効きません。 */
+      if (seg.gloss?.includes('`'))
+        throw new Error(
+          `${e.slug}: 言い換えの説明にバッククォートがあります（「${seg.text}」の説明）。\n` +
+          '  ⚠ 説明は素の文章として出るので、記号がそのまま見えます。「」で囲むなどしてください。'
+        );
+    }
 }
 
 export const findItem = (id: string): Item | undefined =>
