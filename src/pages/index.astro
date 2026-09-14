@@ -9,25 +9,30 @@ import { SITE_NAME, SITE_NAME_PARTS } from '../lib/site';
   description="Claude Code を使っていて分からなかったことを、AI と一緒に調べながら学んでいます。試したことも、勘違いしていたことも、そのまま書いています。"
   path="/"
 >
-  {/* 折り返してよい所にだけ <wbr> を置き、語の途中では割らない（CSS の .site-t が keep-all） */}
-  <h1 class="site-t">{SITE_NAME_PARTS.map((p, i) => <>{i > 0 && <wbr />}{p}</>)}</h1>
+  <div class="top">
+    {/* 題字は 2 行に固定する（2026-09-15 運営者の判断）。1 行目は「ループちゃんの」、2 行目は残りをつないだ 1 行。
+        2 行目が折り返さない級数は、CSS の .site-t2 が .top の幅から決める。 */}
+    <h1 class="site-t"><span class="site-t1">{SITE_NAME_PARTS[0]}</span><span class="site-t2">{SITE_NAME_PARTS.slice(1).join('')}</span></h1>
 
-  {/* ループちゃんのあいさつ（2026-09-14 追加）。セリフ集の「挨拶」の一文を運営者が選んだ。
-      ⚠ 決め台詞は使っていない（セリフ集が「初回紹介や節目に限る」と指定している）。 */}
-  <aside class="loop loop-hello">
-    <img class="loop-face" src="/loop/face-cheer.png" alt="ループちゃん" width="72" height="72" />
-    <p class="loop-b">おかえり。今日は、どんな「わからない」に会った？</p>
-  </aside>
+    {/* ループちゃんのあいさつ（2026-09-14 追加・2026-09-15 手を振る絵に）。セリフ集の「挨拶」の一文を運営者が選んだ。
+        ⚠ 決め台詞は使っていない（セリフ集が「初回紹介や節目に限る」と指定している）。
+        ⚠ 吹き出しの class は "loop-b" だけにする。検証 K12 は <p class="loop-b"> の字面で拾うので、
+           class を足すと検査から黙って外れる。見た目は CSS の .hello .loop-b で変える。 */}
+    <div class="hello">
+      <img class="hello-fig" src="/loop/hero-waving.webp" alt="手を振るループちゃん" width="520" height="733" />
+      <p class="loop-b">おかえり。今日は、どんな「わからない」に会った？</p>
 
-  {/* ⚠ ここは方針そのもの。catalog の builtins を増やす路線に変えたとき（2026-09-08）、
-      この文だけ「~/.claude のスキルを取り上げる」の古いままだった。
-      載せるものを変えるときは、この文も一緒に直すこと。 */}
-  <p class="lead">
-    Claude Code を使っていて「これ、どういうこと？」と思ったことを、
-    <strong>AI と一緒に学んだ記録</strong>を残していきます！
-    ちゃんと試してから書くので、うまくいかなかったことや、
-    勘違いしていたことも、そのまま置いてあります。
-  </p>
+      {/* ⚠ ここは方針そのもの。catalog の builtins を増やす路線に変えたとき（2026-09-08）、
+          この文だけ「~/.claude のスキルを取り上げる」の古いままだった。
+          載せるものを変えるときは、この文も一緒に直すこと。 */}
+      <p class="lead">
+        Claude Code を使っていて「これ、どういうこと？」と思ったことを、
+        <strong>AI と一緒に学んだ記録</strong>を残していきます！
+        ちゃんと試してから書くので、うまくいかなかったことや、
+        勘違いしていたことも、そのまま置いてあります。
+      </p>
+    </div>
+  </div>
 
   <ul class="list">
     {entries.map((e) => {

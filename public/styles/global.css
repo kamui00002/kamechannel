@@ -200,17 +200,46 @@ strong { font-weight: 900; font-family: var(--go); color: var(--bg);
 .loop-b::before { content: ""; position: absolute; left: -6px; top: 14px; width: 10px; height: 10px;
   background: var(--bg2); border-left: 1px solid var(--loop); border-bottom: 1px solid var(--loop);
   transform: rotate(45deg); }
-.loop-hello { margin: -4px 0 34px; }
-.loop-hello .loop-face { width: 72px; height: 72px; }
-.loop-hello .loop-b { margin-top: 14px; font-size: 17px; }
 .row-loop { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0 0; }
 .row-loop .loop-face { width: 32px; height: 32px; }
 .row-loop .loop-b { margin: 0; padding: 5px 12px; font-size: 13.5px; line-height: 1.75; }
 .row-loop .loop-b::before { top: 9px; }
 
-/* サイト名の大見出しは語の途中で割らない（<wbr> の所でだけ折り返す）。
-   入りきらない狭さのときだけ、どこでも割ってはみ出しを防ぐ。 */
-.site-t { word-break: keep-all; overflow-wrap: anywhere; }
+/* ── トップの題字（2026-09-15 作り直し・運営者の判断）──
+   ⚠ 2 行に固定。1 行目「ループちゃんの」／2 行目は 11 字を 1 行に入れる。
+     級数を .top の幅（cqi）から決めるので、どの幅でも 2 行目は折り返さない。
+   ⚠ 機械っぽさは Web フォントでなく組み方で出す（■ 構造規律）。2 行目の走査線は
+     --fg の縞で文字を塗っているだけ。朱・青・氷は文字に使わない（■ 刷り色の役割）。 */
+.top { container-type: inline-size; }
+.site-t { position: relative; padding: 22px 0 0 20px; word-break: keep-all; }
+.site-t::before { content: ""; position: absolute; left: 0; top: 0; width: 22px; height: 22px;
+  border-left: 1px solid var(--fg); border-top: 1px solid var(--fg); }
+.site-t::after { margin-left: -20px; }
+.site-t1, .site-t2 { display: block; white-space: nowrap; }
+.site-t1 { display: flex; align-items: center; gap: .7em; margin-bottom: .35em;
+  font-size: min(30px, 4.3cqi); font-weight: 700; letter-spacing: .46em; }
+.site-t1::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+.site-t2 { font-size: min(84px, 9.1cqi); letter-spacing: -.04em; font-feature-settings: "palt";
+  background: repeating-linear-gradient(180deg, var(--fg) 0 .062em, transparent .062em .088em);
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+/* 縞で塗れない表示（強制カラー）では、ふつうの文字色に戻す */
+@media (forced-colors: active) { .site-t2 { background: none; color: CanvasText; } }
+
+/* ── トップのあいさつ ── 手を振るループちゃん（左）と、吹き出し・リード（右）。
+   絵の足元は罫で裁ち落とす。狭いときはリードを絵の下へ回す。 */
+.hello { display: grid; grid-template-columns: clamp(128px, 30%, 250px) 1fr;
+  grid-template-areas: "fig say" "fig lead"; column-gap: clamp(12px, 3cqi, 30px);
+  border-bottom: 1px solid var(--rule); }
+.hello-fig { grid-area: fig; align-self: end; display: block; width: 100%; height: auto; }
+.hello .loop-b { grid-area: say; align-self: start; margin: clamp(10px, 5cqi, 44px) 0 18px; font-size: 17px; }
+.hello .loop-b::before { top: 16px; }
+.hello .lead { grid-area: lead; margin: 0 0 24px; }
+@container (max-width: 560px) {
+  .hello { grid-template-areas: "fig say" "lead lead"; border-bottom: 0; }
+  .hello-fig { border-bottom: 1px solid var(--rule); }
+  .hello .loop-b { margin-top: 8px; font-size: 15px; }
+  .hello .lead { margin-top: 18px; }
+}
 
 /* ── 出典 ── */
 .credit { max-width: var(--measure); margin-top: 3em; padding: 16px 18px;
