@@ -116,7 +116,7 @@ const { kind, caption } = Astro.props as Figure;
   )}
 
   {kind === 'md-tree' && (
-    <svg viewBox="0 0 700 390" role="img" aria-label="フォルダの入れ子の図。作業を始めた kamechannel の CLAUDE.md と、上にたどった先のホームの CLAUDE.md は読まれる。途中のブログ関係フォルダには CLAUDE.md が無いので素通りする。kamechannel の下の src の CLAUDE.md と、横に並ぶ onakenblog の CLAUDE.md は読まれない。ホームの .claude の CLAUDE.md はどこで作業しても読まれる">
+    <svg viewBox="0 0 700 390" role="img" aria-label="仮想のフォルダの入れ子の図。作業を始めた myapp の CLAUDE.md と、上にたどった先のホームの CLAUDE.md は読まれる。途中の projects フォルダには CLAUDE.md が無いので素通りする。myapp より一段下の src の CLAUDE.md は、起動した時点では来ない。そのフォルダのファイルを触ったときに来る。横に並ぶ otherapp の CLAUDE.md は読まれない。ホームの .claude の CLAUDE.md はどこで作業しても読まれる">
       {/* 上へたどる矢印 */}
       <line x1="26" y1="255" x2="26" y2="96" class="f-line" />
       <polygon points="26,82 18,100 34,100" class="f-arrow" />
@@ -141,45 +141,45 @@ const { kind, caption } = Astro.props as Figure;
       <text x="88" y="125" class="f-mini f-left t-add">CLAUDE.md</text>
       <text x="470" y="125" class="f-mini f-left t-add">読まれる</text>
 
-      {/* ブログ関係/ — フォルダ（枠なし） */}
-      <text x="88" y="169" class="f-mini f-left">ブログ関係/</text>
+      {/* projects/ — フォルダ（枠なし） */}
+      <text x="88" y="169" class="f-mini f-left">projects/</text>
       <text x="470" y="169" class="f-mini f-left">無いので素通り</text>
 
-      {/* 枝: ブログ関係の子 */}
+      {/* 枝: projects の子 */}
       <line x1="90" y1="176" x2="90" y2="339" class="f-tie" />
       <line x1="90" y1="207" x2="104" y2="207" class="f-tie" />
       <line x1="90" y1="339" x2="104" y2="339" class="f-tie" />
 
-      {/* kamechannel/ — フォルダ（枠なし） */}
-      <text x="120" y="213" class="f-mini f-left">kamechannel/</text>
+      {/* myapp/ — フォルダ（枠なし） */}
+      <text x="120" y="213" class="f-mini f-left">myapp/</text>
       <text x="470" y="213" class="f-mini f-left">▶ ここで作業を始めた</text>
 
-      {/* 枝: kamechannel の子 */}
+      {/* 枝: myapp の子 */}
       <line x1="122" y1="220" x2="122" y2="295" class="f-tie" />
       <line x1="122" y1="251" x2="136" y2="251" class="f-tie" />
       <line x1="122" y1="295" x2="136" y2="295" class="f-tie" />
 
-      {/* kamechannel/CLAUDE.md */}
+      {/* myapp/CLAUDE.md */}
       <rect x="136" y="234" width="314" height="34" rx="6" class="f-add" />
       <text x="152" y="257" class="f-mini f-left t-add">CLAUDE.md</text>
-      <text x="470" y="257" class="f-mini f-left t-add">読まれる</text>
+      <text x="470" y="257" class="f-mini f-left t-add">読まれる（ここで起動した）</text>
 
       {/* src/CLAUDE.md — 子 */}
-      <rect x="136" y="278" width="314" height="34" rx="6" class="f-gone" />
-      <text x="152" y="301" class="f-mini f-left t-gone">src/CLAUDE.md</text>
-      <text x="470" y="301" class="f-mini f-left t-gone">読まれない（下は見ない）</text>
+      <rect x="136" y="278" width="314" height="34" rx="6" class="f-keep" />
+      <text x="152" y="301" class="f-mini f-left t-keep">src/CLAUDE.md</text>
+      <text x="470" y="301" class="f-mini f-left t-keep">起動時には来ない（触ると来る）</text>
 
-      {/* onakenblog/CLAUDE.md — 横 */}
+      {/* otherapp/CLAUDE.md — 横 */}
       <rect x="104" y="322" width="346" height="34" rx="6" class="f-gone" />
-      <text x="120" y="345" class="f-mini f-left t-gone">onakenblog/CLAUDE.md</text>
+      <text x="120" y="345" class="f-mini f-left t-gone">otherapp/CLAUDE.md</text>
       <text x="470" y="345" class="f-mini f-left t-gone">読まれない（横も見ない）</text>
 
-      <text x="26" y="380" class="f-mini f-left">作業を始めた場所から、上へたどって拾います。下と横は見ません</text>
+      <text x="26" y="380" class="f-mini f-left">起動した時点で来るのは、始めた場所と、そこから上だけ。下は触ったときに来ます。横は来ません</text>
     </svg>
   )}
 
   {kind === 'aikotoba' && (
-    <svg viewBox="0 0 700 380" role="img" aria-label="6 か所に隠した言葉のうち、起動したフォルダの本文、起動したフォルダからアットマークで呼んだ先、親フォルダの本文の 3 つが届いた。親フォルダからアットマークで呼んだ先は相対パスでも絶対パスでも届かず、隣の兄弟フォルダの本文も届かなかった">
+    <svg viewBox="0 0 700 380" role="img" aria-label="6 か所に隠した言葉のうち、起動したフォルダの本文、起動したフォルダからアットマークで呼んだ先、親フォルダの本文の 3 つが届いた。親フォルダからアットマークで呼んだ先は、道順を短く書いても全部書いても届かず、隣の兄弟フォルダの本文も届かなかった">
       <text x="30" y="30" class="f-mini f-left">言葉を隠した場所</text>
       <text x="560" y="30" class="f-mini f-left">結果</text>
       <line x1="30" y1="42" x2="670" y2="42" class="f-line" />
@@ -197,11 +197,11 @@ const { kind, caption } = Astro.props as Figure;
       <text x="560" y="183" class="f-mini f-left t-add">届いた</text>
 
       <rect x="30" y="212" width="500" height="40" rx="6" class="f-gone" />
-      <text x="48" y="237" class="f-mini f-left t-gone">親フォルダから @ で呼んだ先（相対パス）</text>
+      <text x="48" y="237" class="f-mini f-left t-gone">親フォルダから @ で呼んだ先（道順を短く書いた）</text>
       <text x="560" y="237" class="f-mini f-left t-gone">届かない</text>
 
       <rect x="30" y="262" width="500" height="40" rx="6" class="f-gone" />
-      <text x="48" y="287" class="f-mini f-left t-gone">親フォルダから @ で呼んだ先（絶対パス）</text>
+      <text x="48" y="287" class="f-mini f-left t-gone">親フォルダから @ で呼んだ先（道順を全部書いた）</text>
       <text x="560" y="287" class="f-mini f-left t-gone">届かない</text>
 
       <rect x="30" y="312" width="500" height="40" rx="6" class="f-gone" />
@@ -241,6 +241,48 @@ const { kind, caption } = Astro.props as Figure;
       <text x="550" y="244" class="f-mini t-gone">（絶対パスにしても同じ）</text>
 
       <text x="30" y="288" class="f-mini f-left">同じ一行。違うのは、書いてある CLAUDE.md がどっちか、だけ</text>
+    </svg>
+  )}
+
+  {kind === 'namae' && (
+    <svg viewBox="0 0 700 306" role="img" aria-label="仮想のフォルダ myapp の中身。CLAUDE.md は名前がぴったり同じなので勝手に読まれる。CLAUDE-mobile.md は名前が惜しいだけで勝手には読まれない。rules フォルダの style.md はアットマークで呼ばれたので来る。rules フォルダの secrets.md は呼ばれていないので来ない">
+      <text x="30" y="34" class="f-mini f-left">myapp/</text>
+
+      {/* 枝: myapp の子 */}
+      <line x1="42" y1="42" x2="42" y2="160" class="f-tie" />
+      <line x1="42" y1="67"  x2="56" y2="67"  class="f-tie" />
+      <line x1="42" y1="111" x2="56" y2="111" class="f-tie" />
+      <line x1="42" y1="160" x2="56" y2="160" class="f-tie" />
+
+      {/* CLAUDE.md — ぴったり同じ名前 */}
+      <rect x="56" y="50" width="300" height="34" rx="6" class="f-add" />
+      <text x="72" y="73" class="f-mini f-left t-add">CLAUDE.md</text>
+      <text x="376" y="67" class="f-mini f-left t-add">勝手に読まれる</text>
+      <text x="376" y="85" class="f-mini f-left">中に @rules/style.md と 1 行</text>
+
+      {/* CLAUDE-mobile.md — 惜しい名前 */}
+      <rect x="56" y="94" width="300" height="34" rx="6" class="f-gone" />
+      <text x="72" y="117" class="f-mini f-left t-gone">CLAUDE-mobile.md</text>
+      <text x="376" y="111" class="f-mini f-left t-gone">読まれない</text>
+      <text x="376" y="129" class="f-mini f-left t-gone">（ぴったり同じではない）</text>
+
+      {/* rules/ — フォルダ（枠なし） */}
+      <text x="72" y="166" class="f-mini f-left">rules/</text>
+
+      {/* 枝: rules の子 */}
+      <line x1="74" y1="173" x2="74" y2="250" class="f-tie" />
+      <line x1="74" y1="206" x2="88" y2="206" class="f-tie" />
+      <line x1="74" y1="250" x2="88" y2="250" class="f-tie" />
+
+      <rect x="88" y="189" width="268" height="34" rx="6" class="f-keep" />
+      <text x="104" y="212" class="f-mini f-left t-keep">style.md</text>
+      <text x="376" y="212" class="f-mini f-left t-keep">@ で呼んだので来た（自動ではない）</text>
+
+      <rect x="88" y="233" width="268" height="34" rx="6" class="f-gone" />
+      <text x="104" y="256" class="f-mini f-left t-gone">secrets.md</text>
+      <text x="376" y="256" class="f-mini f-left t-gone">呼んでいないので来ない</text>
+
+      <text x="30" y="296" class="f-mini f-left">このフォルダで、何も言わなくても読まれるのは CLAUDE.md だけです</text>
     </svg>
   )}
 
