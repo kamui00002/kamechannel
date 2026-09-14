@@ -7,6 +7,8 @@
  *   刷り色の役割と、明色版を持たない理由は public/styles/global.css の冒頭に書いてある。
  *   **ここに場当たりの装飾を足さないこと。** 足すなら方針を決めてから。
  */
+import { SITE_NAME, SITE_NAME_PARTS } from '../lib/site';
+
 export interface Props {
   title: string;
   description?: string;
@@ -61,13 +63,14 @@ const canonical = new URL(path, Astro.site).href;
   </head>
   <body>
     <header class="head">
-      <a class="head-t" href="/">KaMeChannel</a>
+      {/* 名前が長いので、狭い画面では語の切れ目（<wbr>）でだけ折り返す（CSS の .head-t が keep-all） */}
+      <a class="head-t" href="/">{SITE_NAME_PARTS.map((p, i) => <>{i > 0 && <wbr />}{p}</>)}</a>
     </header>
     <main class="main">
       <slot />
     </main>
     <footer class="foot">
-      <p class="micro">© KaMeChannel</p>
+      <p class="micro">© {SITE_NAME}</p>
     </footer>
   </body>
 </html>

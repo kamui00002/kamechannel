@@ -18,6 +18,12 @@ export interface Entry {
   reviewed?: boolean;
   /** 人が書いた註。**このサイトの値打ちの実体**（検証 K4 が 300 字未満で落とす） */
   note: string;
+  /*
+   * ループちゃんの一言。記事の頭と、トップの一覧の吹き出しに出る（2026-09-14 追加）。
+   * ⚠ 口調はループちゃんのもの（「〜だよ」「〜しよう」）。註と用語の説明は「です・ます」のまま。
+   * ⚠ 無くても吹き出しが消えるだけで、誌面は普通に見えます。だから読み込み時に止めます（下）。
+   */
+  loopSays: string;
   /** 図。註のどの段落の後ろに置くかだけをデータに持つ（絵そのものは部品側） */
   figures?: Figure[];
 
@@ -65,7 +71,11 @@ export interface CatalogItem {
  */
 export interface BuiltinItem {
   id: string;
-  kind: 'builtin';
+  /**
+   * builtin-command＝スラッシュコマンド（/init など）／builtin-feature＝名前のない仕組み
+   * （CLAUDE.md の読み込みなど。誌面の札は「番外編」）。2026-09-14 に builtin を 2 つに分けた。
+   */
+  kind: 'builtin-command' | 'builtin-feature';
   credit?: string;
 }
 
@@ -97,7 +107,24 @@ export const entries: Entry[] = fs
  *    「図が出ないだけ」で黙って通ります。誌面は正常に見えるので誰も気づきません。
  *    ビルドを止めるのが唯一の気づき方です。
  */
+/** ループちゃんの一言の上限。吹き出しに収まる長さ（一覧で 1〜2 行） */
+const LOOP_SAYS_MAX = 60;
+
 for (const e of entries) {
+  /*
+   * ループちゃんの一言（2026-09-14 追加）。
+   * ⚠ 無い・綴り違いのときに**吹き出しが黙って消える**のがいちばんまずい形です。誌面は
+   *    普通に見え、検証もページの形しか見ないので気づけません。だからビルドを止めます。
+   * ⚠ 素の文章として出ます。記法は効かないので、記号がそのまま見えます。
+   */
+  const says = typeof e.loopSays === 'string' ? e.loopSays.trim() : '';
+  if (!says)
+    throw new Error(`${e.slug}: loopSays（ループちゃんの一言）がありません。記事の頭と一覧の吹き出しに出ます`);
+  if (says.length > LOOP_SAYS_MAX)
+    throw new Error(`${e.slug}: loopSays が ${says.length} 字あります（${LOOP_SAYS_MAX} 字まで）。吹き出しに収まりません`);
+  if (/[`*\n]|\{\{/.test(says))
+    throw new Error(`${e.slug}: loopSays に記法の記号か改行があります → 「${says.slice(0, 30)}…」`);
+
   const paragraphs = e.note.trim().split(/\n{2,}/).length;
   for (const f of e.figures ?? []) {
     if (!FIGURE_KINDS.includes(f.kind))
@@ -159,7 +186,9 @@ export const KIND_LABEL: Record<Item['kind'], string> = {
   rule: 'ルール',
   agent: 'サブエージェント',
   hook: 'フック',
-  builtin: '組み込みコマンド',
+  'builtin-command': 'スラッシュコマンド',
+  // サイト名が「スラッシュコマンド教室」なので、コマンドでない組み込み機能は正直に番外編と出す
+  'builtin-feature': '番外編',
 };
 
 /**

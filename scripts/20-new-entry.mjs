@@ -46,6 +46,11 @@ sourceId: ${id}
 title: ${get('title') ?? `TODO（題を書く）`}
 publishedAt: '${new Date().toISOString().slice(0, 10)}'
 reviewed: false
+
+# ループちゃんの一言。記事の頭と一覧の吹き出しに出ます。60 字まで。1 行で書く。
+#   口調はループちゃん（「〜だよ」「〜しよう」）。TODO のままでは validate が通りません。
+loopSays: TODO（ループちゃんの一言）
+
 # ⚠ ここが記事の値打ちの実体です。300 字以上。TODO のままでは validate が通りません。
 #   書くこと: なぜそう作ったか / どこで詰まったか / いつ使わないと決めたか
 #   書かないこと: ファイルの中身の引き写し（それは素材であって記事ではない）
@@ -53,4 +58,4 @@ note: |
   TODO（人が書く）
 `);
 console.log(`起こしました: src/data/entries/${slug}.yaml`);
-console.log('note を書くまで `npm run validate` は通りません（そういう設計です）。');
+console.log('note と loopSays を書くまで `npm run validate` は通りません（そういう設計です）。');

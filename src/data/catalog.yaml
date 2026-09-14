@@ -1,4 +1,4 @@
-# KaMeChannel に載せてよい ~/.claude の項目 — allowlist ⭐️
+# このサイトに載せてよい ~/.claude の項目 — allowlist ⭐️
 #
 # ■ ここが設計のいちばん大事な一線
 #   このリポジトリは **public** で、素材は運営者自身の ~/.claude です。
@@ -156,7 +156,11 @@ items:
 #          ⚠ 組み込み機能は**スラッシュコマンドだけではありません**。CLAUDE.md の
 #            読み込みのような「名前のない仕組み」も入ります。その場合は誌面で呼ぶ名前を
 #            そのまま id にします（`CLAUDE.md` → `claude-md`）。
-#   kind … builtin 固定
+#   kind … 次の 2 つのどちらか（2026-09-14 に builtin を 2 つに分けた）
+#          builtin-command … スラッシュコマンド（/init など）
+#          builtin-feature … 名前のない仕組み（CLAUDE.md の読み込みなど）。誌面の札は「番外編」
+#          ⚠ サイト名が「スラッシュコマンド教室」なので、コマンドでないものは番外編だと
+#            正直に出します。どちらでもない綴りは K1 が落とします（札が黙って空になるので）
 #   ⚠ path を書かないこと。K1 が「builtins に path がある」を違反として落とします
 #
 # ■ 足すときに確かめること
@@ -165,8 +169,8 @@ items:
 #   **その道具を自分で使ったか。** 使っていない道具に「どこで詰まったか」は書けません。
 builtins:
   - id: init
-    kind: builtin
+    kind: builtin-command
 
   # スラッシュコマンドではない組み込み機能。CLAUDE.md を読み込む仕組みそのもの。
   - id: claude-md
-    kind: builtin
+    kind: builtin-feature

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { entries, findItem, KIND_LABEL, toSegments, tightenSegments, tighten, plain } from '../../lib/entries';
+import { SITE_NAME } from '../../lib/site';
 import Figure from '../../components/Figure.astro';
 
 export function getStaticPaths() {
@@ -28,7 +29,7 @@ const related = (entry.seeAlso ?? []).flatMap((s) => {
 ---
 
 <BaseLayout
-  title={`${entry.title} — KaMeChannel`}
+  title={`${entry.title} — ${SITE_NAME}`}
   {/* 検索結果やリンク先の見出しに出る一行。記法を外してから詰め、残った改行は
       空白 1 個に畳む（属性の中に生の改行が入ると、そのまま外へ出てしまう） */}
   description={tighten(plain(entry.note.trim())).replace(/\s+/g, ' ').slice(0, 110)}
@@ -42,6 +43,14 @@ const related = (entry.seeAlso ?? []).flatMap((s) => {
       <time datetime={entry.publishedAt}>{entry.publishedAt}</time>
       {entry.reviewed === false && <span class="draft">下書き</span>}
     </p>
+
+    {/* ループちゃんの一言。記事の頭の吹き出し（2026-09-14 追加）。
+        ⚠ class="note" を付けないこと。K9・K12 は <p class="note"> を註の段落として数えるので、
+           ここに付けると註が 1 段落増えたことになります。 */}
+    <aside class="loop">
+      <img class="loop-face" src="/loop/face-studying.png" alt="ループちゃん" width="56" height="56" />
+      <p class="loop-b">{tighten(entry.loopSays)}</p>
+    </aside>
 
     {paragraphs.map((p, pi) => (
       <>
@@ -60,6 +69,9 @@ const related = (entry.seeAlso ?? []).flatMap((s) => {
               </button>
               <span class="gl-t" popover id={`gl-${pi}-${si}`}
                 style={`position-anchor:--gl-${pi}-${si}`}>
+                {/* 説明はループちゃんが話す形で出す（2026-09-14）。文そのものは人が書いた
+                    「です・ます」のまま。顔は飾りなので alt は空（話し手の名前は札の見出しが言う）。 */}
+                <img class="gl-face" src="/loop/face-focus.png" alt="" width="44" height="44" />
                 {/* 用語名を札の中にも出す。画面が狭いと札が用語から離れた所に出るため、
                     何の説明かが札だけで分かるようにしておく。 */}
                 <b class="gl-n">{s.text}</b>

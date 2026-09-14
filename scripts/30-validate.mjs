@@ -111,7 +111,7 @@ const K12_CONTROLS = [
   ['組む側で 詰める', true, '和文のあいだの空白（>- で畳まれて届いた形）'],
   ['組む側で詰める', false, '正しく詰まった和文'],
   ['<code>Edit</code> を 3 回', false, '英数字の前後の空白（ここは残すのが正しい）'],
-  ['手元には<span class="gl-t" popover><b>CLAUDE.md</b><span class="gl-b">説明の 文</span></span>が', false, '畳まれた用語カードの中身（誌面に出ない）'],
+  ['手元には<span class="gl-t" popover><img class="gl-face" src="/loop/face-focus.png" alt=""><b>CLAUDE.md</b><span class="gl-b">説明の 文</span></span>が', false, '畳まれた用語カードの中身（誌面に出ない。顔の img が入った実際の形）'],
 ];
 
 function jpGaps(fragment) {
@@ -169,9 +169,15 @@ if (!distMode) {
   //   skip してしまうと、items 側の **path 書き忘れが CI で素通り**します。
   //   それは「組み込みだから path が無いのだろう」と読める状態で、
   //   items と builtins を分けた意味がなくなります。
+  //
+  // ⚠ builtins の kind も形として見ます（2026-09-14 に 2 つに分けた）。綴りを間違えると
+  //   KIND_LABEL に当たらず、誌面の札が**黙って空になる**だけでビルドは通るからです。
+  const BUILTIN_KINDS = ['builtin-command', 'builtin-feature'];
   const shapeBad = [
     ...catalogItems.filter((i) => !i.path).map((i) => `${i.id}（items なのに path が無い）`),
     ...catalogBuiltins.filter((i) => i.path).map((i) => `${i.id}（builtins なのに path がある）`),
+    ...catalogBuiltins.filter((i) => !BUILTIN_KINDS.includes(i.kind))
+      .map((i) => `${i.id}（builtins の kind が「${i.kind}」。${BUILTIN_KINDS.join(' か ')} のどちらか）`),
   ];
   if (shapeBad.length) ng('K1', `名簿の形が違う: ${shapeBad.join(' / ')}`);
 
@@ -198,13 +204,15 @@ if (!distMode) {
   else ok('K3', 'すべての entry が catalog の項目を指している');
 
   // K4 — 人の一言の強制。ここが「集めただけのページを作らない」の実体。
+  //   ループちゃんの一言（loopSays）も人が選ぶ文なので、雛形の TODO のままなら同じく落とします。
+  //   （loopSays が無いこと自体は src/lib/entries.ts が読み込み時に止めます）
   const thin = entries.filter((e) => {
     const n = (e.data?.note ?? '').trim();
-    return n.length < NOTE_MIN || n.includes('TODO');
+    return n.length < NOTE_MIN || n.includes('TODO') || String(e.data?.loopSays ?? '').includes('TODO');
   });
-  if (thin.length) ng('K4', `note が ${NOTE_MIN} 字未満か TODO のまま: ${thin.map((e) => e.file).join(', ')}`);
+  if (thin.length) ng('K4', `note が ${NOTE_MIN} 字未満か、note / loopSays が TODO のまま: ${thin.map((e) => e.file).join(', ')}`);
   else if (entries.length === 0) ng('K4', 'entry が 1 件もありません');
-  else ok('K4', `entry ${entries.length} 件すべてに ${NOTE_MIN} 字以上の note がある`);
+  else ok('K4', `entry ${entries.length} 件すべてに ${NOTE_MIN} 字以上の note がある（loopSays にも TODO は無い）`);
 
   /*
    * K11 — 記事どうしのリンク切れを止める。
@@ -380,6 +388,8 @@ if (distMode) {
     const surfaces = [
       ['本文', /<p class="note">([\s\S]*?)<\/p>/g],
       ['図の説明', /<figcaption>([\s\S]*?)<\/figcaption>/g],
+      // ループちゃんの一言（2026-09-14 追加）。組む側で tighten() を通している人の文なので同じく見る
+      ['ループちゃんの一言', /<p class="loop-b">([\s\S]*?)<\/p>/g],
       ['説明文', /<meta (?:name|property)="(?:og:)?description" content="([^"]*)"/g],
     ];
     for (const [label, re] of surfaces) {
@@ -391,7 +401,7 @@ if (distMode) {
       k12 += 1;
     }
   }
-  if (k12 === 0) ok('K12', `entry ${entries.length} 件の本文・図の説明・説明文に和文どうしの隙間は無い`);
+  if (k12 === 0) ok('K12', `entry ${entries.length} 件の本文・図の説明・説明文・ループちゃんの一言に和文どうしの隙間は無い`);
 }
 
 console.log(failed === 0 ? '\nPASS' : `\nFAIL: ${failed} 件`);

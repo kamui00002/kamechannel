@@ -1,5 +1,5 @@
 /* ==================================================================
-   KaMeChannel ／ 意匠「大判（おおばん）」＋ 動き
+   ループちゃんのスラッシュコマンド教室（旧 KaMeChannel）／ 意匠「大判（おおばん）」＋ 動き
    原典: design-variants/kamechannel/05-typo.html と 08-reactive.html（採用案）
 
    ■ 刷り色の役割（この意匠の全ルール）
@@ -20,6 +20,11 @@
      角丸ゼロ。影ゼロ。境目は 1px の罫。級数は 4 段（極大・題・本文・極小）。
      Web フォントを読み込まない。
 
+   ■ ループちゃんの吹き出し（2026-09-14 追加・運営者の判断）
+     氷 --loop ＝ ループちゃんの声。吹き出しの罫と、用語カードの話し手の名札にだけ使う。
+     色はループちゃんの設定資料の「淡青（氷）」#CBD9F2 から取った（暗い地で計算値 13.6:1）。
+     吹き出しも構造規律に従う。角丸にせず、尻尾も 1px の罫で描く。
+
    ■ 動き（§動き を参照）
      ⚠ **動かなくても読めることを先に保証する。** 動きは飾りで、内容ではない。
    ================================================================== */
@@ -36,6 +41,7 @@
   --hot:  #FF3D3D;   /* 朱＝版面を断つ罫 */
   --cy:   #4DE0D0;   /* 青＝人が手を入れた所 */
   --keep: #5FA8D8;   /* 藍＝機械が持つ事実／図の「元のまま」 */
+  --loop: #CBD9F2;   /* 氷＝ループちゃんの声（吹き出しの罫・名札）。キャラの設定資料の淡青 */
 
   /* 図版の 3 色はこの刷り色に合わせる */
   --c-keep: var(--keep);
@@ -61,10 +67,12 @@ body { margin: 0; background: var(--bg); color: var(--fg);
   -webkit-text-size-adjust: 100%; }
 
 /* ── 天 ── */
-.head { padding: 16px var(--pad); display: flex; align-items: baseline; gap: 14px;
-  border-bottom: 1px solid var(--rule); }
+/* ⚠ 名前が長い（2026-09-14 改名）。狭い画面で添え書きと取り合って語の途中で割れたので、
+   添え書きは下の行へ回し、名前は <wbr> の所でだけ折り返す。 */
+.head { padding: 16px var(--pad); display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: 4px 14px; border-bottom: 1px solid var(--rule); }
 .head-t { color: inherit; text-decoration: none; font-family: var(--go);
-  font-weight: 900; font-size: 16px; letter-spacing: .2em; }
+  font-weight: 900; font-size: 16px; letter-spacing: .2em; word-break: keep-all; }
 .head::after { content: "Claude Code を、AI と一緒に"; font-family: var(--mono);
   font-size: var(--q-micro); color: var(--dim); letter-spacing: .18em; }
 
@@ -113,8 +121,15 @@ strong { font-weight: 900; font-family: var(--go); color: var(--bg);
   border: 1px solid var(--cy); background: var(--bg2); color: var(--fg);
   font-size: 14px; line-height: 1.85; text-align: left;
   max-height: min(60vh, 26em); overflow-y: auto; overscroll-behavior: contain; }
-.gl-t::before { content: "かんたんに言うと"; display: block; font-family: var(--mono);
-  font-size: 10.5px; letter-spacing: .16em; color: var(--cy); }
+/* 話し手はループちゃん（2026-09-14）。顔を左に、名札・用語名・説明を右に並べる。
+   ⚠ display は**開いたときだけ**変える。.gl-t に直接 display を書くと、畳んだ状態の
+      display:none（ブラウザ既定）を上書きして、全部のカードが最初から開いて見えます。 */
+.gl-t:popover-open { display: grid; grid-template-columns: 44px 1fr; column-gap: 12px;
+  align-items: start; }
+.gl-t::before { content: "ループちゃん"; display: block; grid-column: 2;
+  font-family: var(--gon); font-weight: 700; font-size: 11px; letter-spacing: .12em; color: var(--loop); }
+.gl-face { grid-column: 1; grid-row: 1 / span 3; width: 44px; height: 44px; margin-top: 2px; }
+.gl-t > .gl-n, .gl-t > .gl-b { grid-column: 2; }
 .gl-n { display: block; font-family: var(--mono); font-size: 15px; font-weight: 700;
   color: var(--fg); letter-spacing: .02em; margin: 2px 0 8px;
   padding-bottom: 8px; border-bottom: 1px solid color-mix(in srgb, var(--cy) 30%, transparent); }
@@ -171,6 +186,31 @@ strong { font-weight: 900; font-family: var(--go); color: var(--bg);
   transition: color .25s; }
 .row:hover .row-t { color: var(--cy); }
 .row-m { margin: 10px 0 0; }
+
+/* ── ループちゃんの吹き出し ──
+   ⚠ 角丸・影を使わない（■ 構造規律）。尻尾は 1px の罫 2 本を 45° 回して描く。
+   ⚠ class="note" と混ぜない。検証 K9・K12 は註の段落を class="note" で数えます。 */
+.loop { display: flex; align-items: flex-start; gap: 14px; max-width: var(--measure);
+  margin: 0 0 54px; }
+.meta + .loop { margin-top: -28px; }
+.loop-face { flex: none; width: 56px; height: 56px; }
+.loop-b { position: relative; margin: 8px 0 0; padding: 10px 16px;
+  border: 1px solid var(--loop); background: var(--bg2); color: var(--fg);
+  font-size: 15px; line-height: 1.8; }
+.loop-b::before { content: ""; position: absolute; left: -6px; top: 14px; width: 10px; height: 10px;
+  background: var(--bg2); border-left: 1px solid var(--loop); border-bottom: 1px solid var(--loop);
+  transform: rotate(45deg); }
+.loop-hello { margin: -4px 0 34px; }
+.loop-hello .loop-face { width: 72px; height: 72px; }
+.loop-hello .loop-b { margin-top: 14px; font-size: 17px; }
+.row-loop { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0 0; }
+.row-loop .loop-face { width: 32px; height: 32px; }
+.row-loop .loop-b { margin: 0; padding: 5px 12px; font-size: 13.5px; line-height: 1.75; }
+.row-loop .loop-b::before { top: 9px; }
+
+/* サイト名の大見出しは語の途中で割らない（<wbr> の所でだけ折り返す）。
+   入りきらない狭さのときだけ、どこでも割ってはみ出しを防ぐ。 */
+.site-t { word-break: keep-all; overflow-wrap: anywhere; }
 
 /* ── 出典 ── */
 .credit { max-width: var(--measure); margin-top: 3em; padding: 16px 18px;

@@ -1,14 +1,24 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { entries, findItem, KIND_LABEL } from '../lib/entries';
+import { entries, findItem, KIND_LABEL, tighten } from '../lib/entries';
+import { SITE_NAME, SITE_NAME_PARTS } from '../lib/site';
 ---
 
 <BaseLayout
-  title="KaMeChannel — Claude Code を AI と一緒に学ぶ記録"
+  title={`${SITE_NAME} — Claude Code を AI と一緒に学ぶ記録`}
   description="Claude Code を使っていて分からなかったことを、AI と一緒に調べながら学んでいます。試したことも、勘違いしていたことも、そのまま書いています。"
   path="/"
 >
-  <h1>KaMeChannel</h1>
+  {/* 折り返してよい所にだけ <wbr> を置き、語の途中では割らない（CSS の .site-t が keep-all） */}
+  <h1 class="site-t">{SITE_NAME_PARTS.map((p, i) => <>{i > 0 && <wbr />}{p}</>)}</h1>
+
+  {/* ループちゃんのあいさつ（2026-09-14 追加）。セリフ集の決め台詞で、
+      「初回紹介や節目に限って使う」と指定されているので、入口のここにだけ置く。 */}
+  <aside class="loop loop-hello">
+    <img class="loop-face" src="/loop/face-cheer.png" alt="ループちゃん" width="72" height="72" />
+    <p class="loop-b">あなたの「わからない」を、一緒にほどこう。</p>
+  </aside>
+
   {/* ⚠ ここは方針そのもの。catalog の builtins を増やす路線に変えたとき（2026-09-08）、
       この文だけ「~/.claude のスキルを取り上げる」の古いままだった。
       載せるものを変えるときは、この文も一緒に直すこと。 */}
@@ -29,6 +39,11 @@ import { entries, findItem, KIND_LABEL } from '../lib/entries';
             <span class="kind">{item ? KIND_LABEL[item.kind] : ''}</span>
             <time datetime={e.publishedAt}>{e.publishedAt}</time>
             {e.reviewed === false && <span class="draft">下書き</span>}
+          </p>
+          {/* 記事の頭と同じ一言。データは 1 つだけ持つ（書き写すと片方だけ古くなる） */}
+          <p class="row-loop">
+            <img class="loop-face" src="/loop/face-studying.png" alt="ループちゃん" width="32" height="32" />
+            <span class="loop-b">{tighten(e.loopSays)}</span>
           </p>
         </li>
       );
