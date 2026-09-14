@@ -13,7 +13,7 @@
  *
  * 使い方:
  *   npm run validate              データ検証 K1〜K5・K11
- *   npm run validate:dist         生成物検証 K6〜K9（dist/ が無ければスキップではなく FAIL）
+ *   npm run validate:dist         生成物検証 K6〜K9・K12（dist/ が無ければスキップではなく FAIL）
  *   npm run validate:dist -- --self-test   陽性対照。**先に fail を確かめる**
  */
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
@@ -72,6 +72,53 @@ function scan(text, patterns) {
   return hits;
 }
 
+/*
+ * 畳まれた用語カード（popover）を、入れ子の span ごと取り除く。
+ *
+ * ⚠ 非貪欲な /<span class="gl-t">[\s\S]*?<\/span>/ で済ませないこと。カードの中には
+ *    <span class="gl-b"> が入れ子で入っているので、最初の </span> で止まります。
+ *    いまは gl-b がカードの最後の子なので**たまたま**合いますが、要素が 1 つ増えた
+ *    瞬間に黙ってずれます。開閉を数えて確実に飛ばします。
+ */
+function dropPopovers(html) {
+  const open = /<span class="gl-t"[^>]*>/g;
+  let out = '', i = 0, m;
+  while ((m = open.exec(html))) {
+    out += html.slice(i, m.index);
+    const tag = /<(\/?)span\b[^>]*>/g;
+    tag.lastIndex = open.lastIndex;
+    let depth = 1, j = open.lastIndex, t;
+    while (depth > 0 && (t = tag.exec(html))) { depth += t[1] ? -1 : 1; j = tag.lastIndex; }
+    i = j;
+    open.lastIndex = j;
+  }
+  return out + html.slice(i);
+}
+
+/*
+ * 和文どうしのあいだに残った「行送りの空白」を拾う。K12 と陽性対照が共用します。
+ *
+ * ⚠ 片側でも英数字なら拾いません。記事は「`Edit` を 3 回」のように英数字の前後へ
+ *    空白を置く書き方で揃えてあり、そこは**残すのが正しい**からです。
+ * ⚠ 畳まれた用語の中身は誌面に出ません。素で数えると隠れているカードの中身まで
+ *    拾って偽の隙間を数えます（2026-09-11 に踏んだ罠）。先に落とします。
+ */
+const JP_GAP = /[^\x00-\x7F]\s+[^\x00-\x7F]/g;
+
+/** K12 の対照データ。[見本, 鳴るべきか, 何を見ているか] */
+const K12_CONTROLS = [
+  ['組む側で\n詰める', true, '和文のあいだの改行（YAML の折り返しがそのまま届いた形）'],
+  ['組む側で 詰める', true, '和文のあいだの空白（>- で畳まれて届いた形）'],
+  ['組む側で詰める', false, '正しく詰まった和文'],
+  ['<code>Edit</code> を 3 回', false, '英数字の前後の空白（ここは残すのが正しい）'],
+  ['手元には<span class="gl-t" popover><b>CLAUDE.md</b><span class="gl-b">説明の 文</span></span>が', false, '畳まれた用語カードの中身（誌面に出ない）'],
+];
+
+function jpGaps(fragment) {
+  const text = dropPopovers(fragment).replace(/<[^>]+>/g, '');
+  return [...text.matchAll(JP_GAP)].map((m) => m[0].trim());
+}
+
 /** dist/ 配下のテキストファイルを全部読む。 */
 function walkText(dir) {
   const out = [];
@@ -96,7 +143,18 @@ if (selfTest) {
     if (hits.some((h) => h.name === expected)) ok('対照', `${expected} を検知した`);
     else { console.error(`  ✗ 対照 ${expected} を検知できなかった（検知器が壊れています）`); bad += 1; }
   }
-  if (bad > 0) { console.error(`\n陽性対照 FAIL: ${bad} 件。K6/K7 の結果を「検証済み」と書かないこと。`); process.exit(1); }
+
+  /*
+   * K12 の検知器。**先に fail を確かめる**ためのもの。
+   * 鳴るべきものが鳴るか（陽性）と、鳴ってはいけないものが黙るか（陰性）の両方を見ます。
+   * 陰性を置かないと「何にでも鳴る検知器」が緑を偽装できます。
+   */
+  for (const [sample, shouldFire, why] of K12_CONTROLS) {
+    const fired = jpGaps(sample).length > 0;
+    if (fired === shouldFire) ok('対照', `${shouldFire ? '鳴った' : '黙った'}: ${why}`);
+    else { console.error(`  ✗ 対照 ${why} — ${shouldFire ? '鳴りませんでした' : '誤って鳴りました'}（検知器が壊れています）`); bad += 1; }
+  }
+  if (bad > 0) { console.error(`\n陽性対照 FAIL: ${bad} 件。K6/K7・K12 の結果を「検証済み」と書かないこと。`); process.exit(1); }
   console.log('\n陽性対照 PASS。検知器は生きています。\n');
   process.exit(0);
 }
@@ -187,7 +245,7 @@ if (!distMode) {
 
 // ══════════════════════════════════════════════════
 if (distMode) {
-  console.log('生成物検証 K6〜K9');
+  console.log('生成物検証 K6〜K9・K12');
   if (!existsSync(DIST)) {
     // スキップではなく FAIL。検証していないものを「通った」と読ませないため。
     console.error('  ✗ dist/ がありません。先に npm run build を実行してください。');
@@ -288,6 +346,52 @@ if (distMode) {
     }
   }
   if (k9 === 0) ok('K9', `entry ${entries.length} 件のページに note が出ている`);
+
+  /*
+   * K12 — 和文のあいだに「行送りの空白」が戻っていないか。
+   *
+   * ■ なぜ要るか
+   *   本文は YAML に読みやすい幅で折り返して書いてあります。段落を割るのは空行だけなので、
+   *   段落の中の改行はそのままブラウザへ渡り、半角スペース 1 個として組まれます。英語なら
+   *   単語の切れ目ですが、日本語には単語のあいだに空白を置く習慣がないので、ただの隙間
+   *   として誌面に出ます。これを組む側（entries.ts の tighten / tightenSegments）で詰めています。
+   *
+   *   ⚠ その配線は [slug].astro のたった 6 行です。**外しても K1〜K11 は全部緑のまま**
+   *      でした（2026-09-12 に実測。隙間が claude-md 115 件・init 49 件に戻っても PASS）。
+   *      だからこの検査が要ります。配線が将来剥がれたときに気づける唯一の目です。
+   *
+   * ■ なぜ dist を見るか
+   *   src/data/ の側は改行が入っているのが**正しい**執筆スタイルです。そこで測ると
+   *   正しい原稿を叱ることになります。見るべきは「組み終えた誌面」のほうです。
+   *
+   * ■ なぜ範囲を 3 面に絞るか（閾値を置かないため）
+   *   ページ全体を見ると「★ 別枠」「標識 ＝ CLAUDE.md」「← 一覧へ」など、**意図して
+   *   空けた空白**が混ざります（claude-md 6 件・init 4 件）。ここで「6 件以下なら緑」と
+   *   閾値を置くと数字が腐ります。代わりに、組む側が実際に詰めている人の文章の 3 面
+   *   — 本文・図の説明・検索用の説明文 — だけを見ます。実測でどれも 0 件です。
+   */
+  let k12 = 0;
+  for (const e of entries) {
+    const page = join(DIST, 'claude', e.data.slug, 'index.html');
+    // ページが無い件は K9 が既に鳴らしています。ここで二重に鳴らしません。
+    if (!existsSync(page)) continue;
+    const html = readFileSync(page, 'utf8');
+
+    const surfaces = [
+      ['本文', /<p class="note">([\s\S]*?)<\/p>/g],
+      ['図の説明', /<figcaption>([\s\S]*?)<\/figcaption>/g],
+      ['説明文', /<meta (?:name|property)="(?:og:)?description" content="([^"]*)"/g],
+    ];
+    for (const [label, re] of surfaces) {
+      const hits = [...html.matchAll(re)].flatMap((m) => jpGaps(m[1]));
+      if (hits.length === 0) continue;
+      // 壊れると 100 件超えるので、件数と見本だけ出します（全部出すと読めません）
+      const sample = hits.slice(0, 3).map((h) => `「${h}」`).join(' ');
+      ng('K12', `${e.data.slug} の${label}に和文どうしの隙間 ${hits.length} 件: ${sample}${hits.length > 3 ? ' …' : ''}`);
+      k12 += 1;
+    }
+  }
+  if (k12 === 0) ok('K12', `entry ${entries.length} 件の本文・図の説明・説明文に和文どうしの隙間は無い`);
 }
 
 console.log(failed === 0 ? '\nPASS' : `\nFAIL: ${failed} 件`);
