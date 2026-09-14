@@ -186,7 +186,8 @@ export const KIND_LABEL: Record<Item['kind'], string> = {
   rule: 'ルール',
   agent: 'サブエージェント',
   hook: 'フック',
-  'builtin-command': 'スラッシュコマンド',
+  // 自作の command と札を分ける（最初から入っているものか、自分で作ったものかを誌面で見分けるため）
+  'builtin-command': '組み込みコマンド',
   // サイト名が「スラッシュコマンド教室」なので、コマンドでない組み込み機能は正直に番外編と出す
   'builtin-feature': '番外編',
 };
