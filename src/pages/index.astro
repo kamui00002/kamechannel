@@ -12,11 +12,11 @@ import { SITE_NAME, SITE_NAME_PARTS } from '../lib/site';
   {/* 折り返してよい所にだけ <wbr> を置き、語の途中では割らない（CSS の .site-t が keep-all） */}
   <h1 class="site-t">{SITE_NAME_PARTS.map((p, i) => <>{i > 0 && <wbr />}{p}</>)}</h1>
 
-  {/* ループちゃんのあいさつ（2026-09-14 追加）。セリフ集の決め台詞で、
-      「初回紹介や節目に限って使う」と指定されているので、入口のここにだけ置く。 */}
+  {/* ループちゃんのあいさつ（2026-09-14 追加）。セリフ集の「挨拶」の一文を運営者が選んだ。
+      ⚠ 決め台詞は使っていない（セリフ集が「初回紹介や節目に限る」と指定している）。 */}
   <aside class="loop loop-hello">
     <img class="loop-face" src="/loop/face-cheer.png" alt="ループちゃん" width="72" height="72" />
-    <p class="loop-b">あなたの「わからない」を、一緒にほどこう。</p>
+    <p class="loop-b">おかえり。今日は、どんな「わからない」に会った？</p>
   </aside>
 
   {/* ⚠ ここは方針そのもの。catalog の builtins を増やす路線に変えたとき（2026-09-08）、
