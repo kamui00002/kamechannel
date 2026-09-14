@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { entries, findItem, KIND_LABEL, toSegments, plain } from '../../lib/entries';
+import { entries, findItem, KIND_LABEL, toSegments, tightenSegments, tighten, plain } from '../../lib/entries';
 import Figure from '../../components/Figure.astro';
 
 export function getStaticPaths() {
@@ -29,7 +29,9 @@ const related = (entry.seeAlso ?? []).flatMap((s) => {
 
 <BaseLayout
   title={`${entry.title} — KaMeChannel`}
-  description={plain(entry.note.trim()).slice(0, 110)}
+  {/* 検索結果やリンク先の見出しに出る一行。記法を外してから詰め、残った改行は
+      空白 1 個に畳む（属性の中に生の改行が入ると、そのまま外へ出てしまう） */}
+  description={tighten(plain(entry.note.trim())).replace(/\s+/g, ' ').slice(0, 110)}
   path={`/claude/${entry.slug}/`}
 >
   <article>
@@ -44,7 +46,7 @@ const related = (entry.seeAlso ?? []).flatMap((s) => {
     {paragraphs.map((p, pi) => (
       <>
       <p class="note">
-        {toSegments(p).map((s, si) =>
+        {tightenSegments(toSegments(p)).map((s, si) =>
           s.gloss ? (
             /* 言い換え。既定は畳んである。用語を押した/触れたときだけ出す。
                ⚠ popover は素の HTML の機能で、JavaScript を1行も足していない。 */
@@ -72,7 +74,7 @@ const related = (entry.seeAlso ?? []).flatMap((s) => {
       </p>
       {/* この段落の後ろに置く図。データが持つのは置き場所と説明だけ（Figure.astro が絵） */}
       {(entry.figures ?? []).filter((f) => f.after === pi + 1)
-        .map((f) => <Figure kind={f.kind} after={f.after} caption={f.caption} />)}
+        .map((f) => <Figure kind={f.kind} after={f.after} caption={tighten(f.caption)} />)}
       </>
     ))}
 

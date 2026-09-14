@@ -183,6 +183,49 @@ export const KIND_LABEL: Record<Item['kind'], string> = {
  */
 export type Segment = { text: string; strong?: boolean; code?: boolean; gloss?: string };
 
+/*
+ * 日本語のあいだに入った「行送りの空白」を詰める。
+ *
+ * ⚠ なぜ要るか: 本文は YAML に読みやすい幅で折り返して書いてある。段落を割るのは
+ *    空行（\n{2,}）だけなので、段落の中の改行はそのままブラウザへ渡り、ブラウザは
+ *    それを半角スペース 1 個として組む。英語なら単語の切れ目だが、日本語には単語の
+ *    あいだに空白を置く習慣がないので、ただの隙間として出てしまう。
+ *    図の説明は `>-` で書くので YAML の時点で空白へ畳まれており、改行ではなく
+ *    空白として届く。両方をここでまとめて詰める。
+ *
+ * ⚠ 英数字が絡む所は詰めない。「`Edit` を 3 回」のように、記事は英数字の前後に
+ *    空白を置く書き方で揃えてある。片側でも ASCII なら空白を残すこと。
+ */
+const TIGHTEN = /([^\x00-\x7F])\s+(?=[^\x00-\x7F])/g;
+
+export function tighten(text: string): string {
+  return text.replace(TIGHTEN, '$1');
+}
+
+/*
+ * かたまり（Segment）の境目に残った行送りの空白を落とす。
+ *
+ * ⚠ tighten() だけでは足りない。**太字** や {{用語|説明}} の記号は ASCII なので、
+ *    「…ありません。⏎{{起動したフォルダ|…}}から」のような所を素通りしてしまう。
+ *    誌面に出るのは記号ではなく「用語」のほうなので、記号を正規表現で追いかけず、
+ *    組み終えたかたまりの左右で判断する。
+ *
+ * ⚠ コードのかたまりは中身を書き換えない（原文どおりに組むため）。
+ *    境目の判定には使う。「`Edit` を」のように片側が ASCII なら空白は残る。
+ */
+export function tightenSegments(segs: Segment[]): Segment[] {
+  const endsJP = /[^\x00-\x7F]\s*$/;    // 右端が（空白を挟んで）日本語
+  const startsJP = /^\s*[^\x00-\x7F]/;  // 左端が（空白を挟んで）日本語
+  const out = segs.map((s) => (s.code ? s : { ...s, text: tighten(s.text) }));
+  for (let i = 0; i < out.length - 1; i++) {
+    if (endsJP.test(out[i].text) && startsJP.test(out[i + 1].text)) {
+      out[i] = { ...out[i], text: out[i].text.replace(/\s+$/, '') };
+      out[i + 1] = { ...out[i + 1], text: out[i + 1].text.replace(/^\s+/, '') };
+    }
+  }
+  return out;
+}
+
 export function toSegments(line: string): Segment[] {
   const out: Segment[] = [];
   // ** … ** と ` … ` と {{用語|言い換え}} を1本の正規表現で拾い、間の地の文と交互に積む
