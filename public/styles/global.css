@@ -228,17 +228,61 @@ strong { font-weight: 900; font-family: var(--go); color: var(--bg);
 /* ── トップのあいさつ ── 手を振るループちゃん（左）と、吹き出し・リード（右）。
    絵の足元は罫で裁ち落とす。狭いときはリードを絵の下へ回す。 */
 .hello { display: grid; grid-template-columns: clamp(128px, 30%, 250px) 1fr;
-  grid-template-areas: "fig say" "fig lead"; column-gap: clamp(12px, 3cqi, 30px);
-  border-bottom: 1px solid var(--rule); }
+  grid-template-areas: "fig say" "fig lead" "fig more"; grid-template-rows: auto auto 1fr;
+  column-gap: clamp(12px, 3cqi, 30px); border-bottom: 1px solid var(--rule); }
 .hello-fig { grid-area: fig; align-self: end; display: block; width: 100%; height: auto; }
 .hello .loop-b { grid-area: say; align-self: start; margin: clamp(10px, 5cqi, 44px) 0 18px; font-size: 17px; }
 .hello .loop-b::before { top: 16px; }
-.hello .lead { grid-area: lead; margin: 0 0 24px; }
+.hello .lead { grid-area: lead; margin: 0 0 12px; }
+.hello-more { grid-area: more; align-self: start; margin: 0 0 24px; font-size: 14px; }
 @container (max-width: 560px) {
-  .hello { grid-template-areas: "fig say" "lead lead"; border-bottom: 0; }
+  .hello { grid-template-areas: "fig say" "lead lead" "more more"; border-bottom: 0; }
   .hello-fig { border-bottom: 1px solid var(--rule); }
   .hello .loop-b { margin-top: 8px; font-size: 15px; }
   .hello .lead { margin-top: 18px; }
+}
+
+/* ── ループちゃんの紹介ページ（/loop/・2026-09-15）──
+   ⚠ 設定資料の絵は明るい地で描かれている。暗い地にそのまま置くと穴に見えるので、
+     1px の罫で囲んだ図版（.plate）にして、説明は絵の下の文字で付ける（■ 構造規律）。
+   ⚠ 絵の中の色（紺・青など）を文字色に使わない。暗い地では読めない。
+   ⚠ class="fig" を使わない。動き（.mo .fig）の対象になって、JS 次第で隠れる。 */
+.intro { display: grid; grid-template-columns: clamp(130px, 32%, 260px) 1fr;
+  grid-template-areas: "fig say" "fig lead"; grid-template-rows: auto 1fr;
+  column-gap: clamp(14px, 3vw, 30px); }
+.intro-fig { grid-area: fig; }
+.intro .loop-b { grid-area: say; align-self: start; margin: clamp(8px, 4vw, 36px) 0 18px; font-size: 17px; }
+.intro .loop-b::before { top: 16px; }
+.intro-lead { grid-area: lead; margin: 0; max-width: 26em; font-size: 17px; line-height: 1.9; }
+.plate { margin: 0; border: 1px solid var(--rule); background: var(--bg2); }
+.plate img { display: block; width: 100%; height: auto; }
+.plate-full { max-width: 434px; }
+.cap { display: grid; grid-template-columns: repeat(var(--n), 1fr); border-top: 1px solid var(--rule);
+  font-size: 12.5px; line-height: 1.6; color: var(--dim); text-align: center; }
+.cap span { padding: 7px 2px; }
+.cap-3 { --n: 3; }
+.cap-4 { --n: 4; }
+.cap-5 { --n: 5; }
+.sec { margin: 72px 0 18px; font-family: var(--go); font-weight: 900; font-size: var(--q-sub);
+  line-height: 1.3; letter-spacing: -.01em; }
+.prof { display: grid; grid-template-columns: 6.5em 1fr; margin: 0; max-width: var(--measure);
+  border-bottom: 1px solid var(--rule); }
+.prof dt, .prof dd { margin: 0; padding: 12px 0; border-top: 1px solid var(--rule); }
+.prof dt { padding-top: 14px; font-size: 13px; font-weight: 700; color: var(--dim); }
+.prof dd { font-size: 15.5px; line-height: 1.8; }
+.lines { list-style: none; margin: 0; padding: 0; max-width: var(--measure); }
+.line { display: grid; grid-template-columns: 8em 1fr; align-items: start; padding: 14px 0;
+  border-top: 1px solid var(--rule); }
+.line:last-child { border-bottom: 1px solid var(--rule); }
+.line-when { padding-top: 6px; font-size: 13px; font-weight: 700; color: var(--dim); }
+.line .row-loop { margin: 0; }
+@media (max-width: 560px) {
+  .intro { grid-template-columns: 38% 1fr; grid-template-areas: "fig say" "lead lead"; grid-template-rows: auto auto; }
+  .intro .loop-b { margin-top: 6px; font-size: 15px; }
+  .intro-lead { margin-top: 18px; font-size: 16px; }
+  .line { grid-template-columns: 1fr; row-gap: 6px; }
+  .line-when { padding-top: 0; }
+  .cap { font-size: 11px; }
 }
 
 /* ── 出典 ── */

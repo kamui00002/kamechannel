@@ -15,7 +15,7 @@ import { SITE_NAME, SITE_NAME_PARTS } from '../lib/site';
     <h1 class="site-t"><span class="site-t1">{SITE_NAME_PARTS[0]}</span><span class="site-t2">{SITE_NAME_PARTS.slice(1).join('')}</span></h1>
 
     {/* ループちゃんのあいさつ（2026-09-14 追加・2026-09-15 手を振る絵に）。セリフ集の「挨拶」の一文を運営者が選んだ。
-        ⚠ 決め台詞は使っていない（セリフ集が「初回紹介や節目に限る」と指定している）。
+        ⚠ 決め台詞はここでは使わない（セリフ集が「初回紹介や節目に限る」と指定している。使うのは紹介ページ /loop/ だけ）。
         ⚠ 吹き出しの class は "loop-b" だけにする。検証 K12 は <p class="loop-b"> の字面で拾うので、
            class を足すと検査から黙って外れる。見た目は CSS の .hello .loop-b で変える。 */}
     <div class="hello">
@@ -31,6 +31,7 @@ import { SITE_NAME, SITE_NAME_PARTS } from '../lib/site';
         ちゃんと試してから書くので、うまくいかなかったことや、
         勘違いしていたことも、そのまま置いてあります。
       </p>
+      <p class="hello-more"><a href="/loop/">ループちゃんのこと →</a></p>
     </div>
   </div>
 

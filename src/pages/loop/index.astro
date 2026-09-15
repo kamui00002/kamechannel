@@ -1,0 +1,95 @@
+---
+/*
+ * ループちゃんの紹介ページ（2026-09-15 追加・運営者の依頼）。
+ *
+ * ■ 文の持ち主で口調を分ける（CLAUDE.md §4「ループちゃんの吹き出し」）
+ *   吹き出しのセリフ … セリフ集から原文のまま引く（ループちゃんの口調）。書き直さない
+ *   それ以外の文     … 運営者の声なので です・ます
+ * ⚠ 決め台詞は、セリフ集が「初回紹介や節目に限る」と指定している。使うのはこのページだけ。
+ * ⚠ 性別表現はアンドロジナス。彼・彼女など、性別を決める語を使わない。
+ * ⚠ 出典の文は CLAUDE.md §1 と同じ言い方にする。アプリの名前・ほかのキャラ・実パスは書かない。
+ * ⚠ このページの吹き出しは検証 K12（字の隙間）の対象外（K12 は claude/ 配下だけを見る）。
+ *   セリフは 1 行で書き、途中で改行しないこと。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE_NAME } from '../../lib/site';
+
+const TITLE = 'ループちゃんのこと';
+
+const PROFILE = [
+  ['名前', 'ループ（この教室では「ループちゃん」）'],
+  ['役割', '学びの相棒をつとめる AI アシスタント'],
+  ['性格', '明るくて好奇心旺盛。学ぶことと、整理することが好きです'],
+  ['話し方', '「教える人」より「一緒に考える相棒」。難しいことを整理して、同じ目線で考えます'],
+  ['見た目', '20 歳くらい・中性的（アンドロジナス）・身長 158cm'],
+  ['モチーフ', '氷・回路・光'],
+];
+
+// 絵の下の説明。設定資料に書いてあった名前をそのまま使う（左から順に）
+const FACES = ['ノーマル', '笑顔', '考える', '驚き', 'やさしい'];
+const POSES = ['あいさつ', '説明する', '応援する', '調べる'];
+const VIEWS = ['正面', '横', '後ろ'];
+
+// セリフはセリフ集から原文のまま。左の見出しだけ運営者の言葉
+const LINES = [
+  ['はじめるとき', '大丈夫。まずは、今わかっているところから並べてみよう。'],
+  ['まちがえたとき', '惜しいね。でも、この間違いのおかげで迷いやすい場所が見つかった。'],
+  ['わからないとき', '一度でわからなくても平気。理解は、何度でも組み直せるから。'],
+  ['ひと休み', '少し休もうか。立ち止まる時間も、学びの一部だよ。'],
+];
+---
+
+<BaseLayout
+  title={`${TITLE} — ${SITE_NAME}`}
+  description="このサイトの案内役、ループちゃんの紹介です。性格や話し方を、設定資料の表情・ポーズ・全身の絵と一緒にまとめました。"
+  path="/loop/"
+>
+  <h1>{TITLE}</h1>
+
+  <div class="intro">
+    <figure class="plate intro-fig">
+      <img src="/loop/intro-point.webp" alt="指を立てて話すループちゃん" width="388" height="686" />
+    </figure>
+    {/* 決め台詞（セリフ集の原文は『わからない』。トップのあいさつに合わせて「」にしている） */}
+    <p class="loop-b">あなたの「わからない」を、一緒にほどこう。</p>
+    <p class="intro-lead">このサイトの案内役、ループちゃんです！ 記事の頭や一覧でひとこと話したり、用語の説明カードに顔を出したりしています。</p>
+  </div>
+
+  <h2 class="sec">プロフィール</h2>
+  <dl class="prof">
+    {PROFILE.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}
+  </dl>
+
+  <h2 class="sec">表情</h2>
+  <figure class="plate">
+    <img src="/loop/intro-faces.webp" alt="ループちゃんの 5 つの表情" width="862" height="220" loading="lazy" />
+    <figcaption class="cap cap-5">{FACES.map((t) => <span>{t}</span>)}</figcaption>
+  </figure>
+
+  <h2 class="sec">ポーズ</h2>
+  <figure class="plate">
+    <img src="/loop/intro-poses.webp" alt="ループちゃんの 4 つのポーズ" width="848" height="196" loading="lazy" />
+    <figcaption class="cap cap-4">{POSES.map((t) => <span>{t}</span>)}</figcaption>
+  </figure>
+
+  <h2 class="sec">全身</h2>
+  <figure class="plate plate-full">
+    <img src="/loop/intro-full.webp" alt="ループちゃんの全身を 3 方向から" width="432" height="307" loading="lazy" />
+    <figcaption class="cap cap-3">{VIEWS.map((t) => <span>{t}</span>)}</figcaption>
+  </figure>
+
+  <h2 class="sec">ループちゃんのひとこと</h2>
+  <ul class="lines">
+    {LINES.map(([when, say]) => (
+      <li class="line">
+        <span class="line-when">{when}</span>
+        <p class="row-loop">
+          <img class="loop-face" src="/loop/face-studying.png" alt="" width="32" height="32" />
+          <span class="loop-b">{say}</span>
+        </p>
+      </li>
+    ))}
+  </ul>
+
+  <p class="credit">ループちゃんは、運営者が作っている学習アプリ（非公開・名称未定）の相棒キャラです。絵も運営者の制作物で、アプリより先にこの教室で公開しています。</p>
+</BaseLayout>
