@@ -174,3 +174,7 @@ builtins:
   # スラッシュコマンドではない組み込み機能。CLAUDE.md を読み込む仕組みそのもの。
   - id: claude-md
     kind: builtin-feature
+
+  # 使うモデルを切り替えるコマンド。運営者の会話記録で 22 回（いちばん多い）。
+  - id: model
+    kind: builtin-command
