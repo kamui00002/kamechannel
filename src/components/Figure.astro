@@ -325,5 +325,48 @@ const { kind, caption } = Astro.props as Figure;
     </svg>
   )}
 
+  {kind === 'model-default' && (
+    <svg viewBox="0 0 700 372" role="img" aria-label="上の段は設定ファイル。既定のモデルが赤い fable から緑の opus へ書き換わり、更新時刻も新しくなっていた。ここは実物を開いて確かめている。下の段は、そのあと開いた会話。ターミナルから開いたものは緑で、既定どおり Opus 5 で始まったが 1 例だけ。デスクトップから開いたものは赤で、設定と違うモデルで始まった。一番下の Fable の日に Opus で始まった会話には枠がなく、起動のときにモデルを指定していた可能性が残るため、どちらの証拠にもならない">
+      <text x="20" y="28" class="f-cap f-left">① 設定ファイルの既定 ── 開いて確かめた</text>
+
+      <rect x="28" y="48" width="168" height="54" class="f-gone" />
+      <text x="112" y="82" class="f-num t-gone">fable</text>
+
+      <line x1="210" y1="75" x2="282" y2="75" class="f-line" />
+      <polygon points="296,75 278,67 278,83" class="f-arrow" />
+      <text x="253" y="58" class="f-mini">/model</text>
+
+      <rect x="310" y="48" width="168" height="54" class="f-add" />
+      <text x="394" y="82" class="f-num t-add">opus</text>
+
+      <text x="500" y="70" class="f-mini f-left t-add">書き換わった</text>
+      <text x="500" y="90" class="f-mini f-left">更新時刻も新しかった</text>
+
+      <line x1="20" y1="132" x2="680" y2="132" class="f-line f-faint" />
+
+      <text x="20" y="164" class="f-cap f-left">② 次に開いた会話 ── 測り切れていない</text>
+
+      <text x="28" y="215" class="f-mini f-left">ターミナルから開いた</text>
+      <line x1="196" y1="209" x2="254" y2="209" class="f-line" />
+      <polygon points="268,209 250,201 250,217" class="f-arrow" />
+      <rect x="282" y="188" width="196" height="42" class="f-add" />
+      <text x="380" y="214" class="f-mini t-add">Opus 5 で始まった</text>
+      <text x="496" y="214" class="f-mini f-left">既定どおり。ただし 1 例</text>
+
+      <text x="28" y="273" class="f-mini f-left">デスクトップから開いた</text>
+      <line x1="196" y1="267" x2="254" y2="267" class="f-line" />
+      <polygon points="268,267 250,259 250,275" class="f-arrow" />
+      <rect x="282" y="246" width="196" height="42" class="f-gone" />
+      <text x="380" y="272" class="f-mini t-gone">設定と違うモデル</text>
+      <text x="496" y="272" class="f-mini f-left t-gone">食い違った</text>
+
+      {/* 3 本目は枠を描かない。緑でも赤でもない＝どちらの証拠にもならない、を
+          色を増やさずに出すため（色の役割は図をまたいで固定してある） */}
+      <text x="28" y="327" class="f-mini f-left">Fable の日に Opus で始まった</text>
+      <text x="282" y="327" class="f-mini f-left">枠なし ── どちらの証拠にもならない</text>
+      <text x="282" y="349" class="f-mini f-left f-faint">起動のときにモデルを指定していたかもしれない</text>
+    </svg>
+  )}
+
   <figcaption>{caption}</figcaption>
 </figure>
