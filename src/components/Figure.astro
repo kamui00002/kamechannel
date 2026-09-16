@@ -368,5 +368,91 @@ const { kind, caption } = Astro.props as Figure;
     </svg>
   )}
 
+  {kind === 'model-aikotoba' && (
+    <svg viewBox="0 0 700 440" role="img" aria-label="同じ会話の 53 秒の時系列。13時38分21秒にスラッシュモデルで Sonnet 5 にし、合言葉のバナナ3個を伝えて返事をもらい、13時38分59秒に Opus 5 へ切り替え、あとから合言葉を聞くとバナナ3個と答えた。まん中の青い帯は会話の記録で、上から下まで切れずに続いている。右の名札だけが Sonnet 5 から Opus 5 へ代わる。対照として、何も教えていない別の会話で同じことを聞くと知らないと返ってくる">
+      <text x="20" y="26" class="f-cap f-left">同じ会話の 53 秒 ── 代わったのは書き手だけ</text>
+      <line x1="20" y1="40" x2="680" y2="40" class="f-line f-faint" />
+
+      <text x="20" y="64" class="f-mini f-left">時刻（UTC）</text>
+      <text x="161" y="64" class="f-mini t-keep">会話の記録</text>
+      <text x="520" y="64" class="f-mini f-left">返事を書いた側</text>
+
+      {/* ノートの背骨。**1 本のまま切れない**ことが、この図の言いたいことの全部 */}
+      <rect x="150" y="80" width="22" height="248" class="f-keep" />
+
+      {/* 名札が 2 つに割れているのは、書き手が交代したから。割れ目が /model の行に来る */}
+      <rect x="520" y="122" width="156" height="84" rx="6" class="f-paper" />
+      <text x="598" y="170" class="f-cap">Sonnet 5</text>
+      <text x="598" y="231" class="f-mini">ここで交代</text>
+      <rect x="520" y="248" width="156" height="84" rx="6" class="f-paper" />
+      <text x="598" y="296" class="f-cap">Opus 5</text>
+
+      <text x="20" y="100" class="f-mini f-left">13:38:21</text>
+      <text x="196" y="100" class="f-mini f-left">「/model」で Sonnet 5 にした</text>
+
+      <text x="20" y="142" class="f-mini f-left">13:38:44</text>
+      <text x="196" y="142" class="f-mini f-left">「合言葉は バナナ3個 です」と伝えた</text>
+
+      <text x="20" y="184" class="f-mini f-left">13:38:48</text>
+      <text x="196" y="184" class="f-mini f-left">返事が来た</text>
+
+      <text x="20" y="226" class="f-mini f-left">13:38:59</text>
+      <text x="196" y="226" class="f-mini f-left">「/model」で Opus 5 にした</text>
+
+      <text x="20" y="268" class="f-mini f-left">13:39:09</text>
+      <text x="196" y="268" class="f-mini f-left">「合言葉は」とだけ聞いた</text>
+
+      <text x="20" y="311" class="f-mini f-left">13:39:14</text>
+      <rect x="190" y="290" width="306" height="32" rx="6" class="f-add" />
+      <text x="206" y="311" class="f-mini f-left t-add">「バナナ3個」と答えた</text>
+
+      {/* 対照。教えていない会話では出てこない ＝ 当てずっぽうでは当たらない */}
+      <line x1="20" y1="352" x2="680" y2="352" class="f-line f-faint" />
+      <text x="20" y="378" class="f-cap f-left">対照 ── 何も教えていない別の会話で、同じことを聞いた</text>
+      <rect x="190" y="392" width="306" height="32" rx="6" class="f-gone" />
+      <text x="206" y="413" class="f-mini f-left t-gone">「知らない」と返ってきた</text>
+      <text x="520" y="413" class="f-mini f-left t-gone">届かない</text>
+    </svg>
+  )}
+
+  {kind === 'model-order' && (
+    <svg viewBox="0 0 700 390" role="img" aria-label="裏で動く Claude のモデルが決まる順番。上から、強制用の環境変数、呼び出すときの指定、役の定義の model 行、既定の環境変数、呼び出した側を継ぐ、の 5 段。今回の記録では役の定義の行と継ぐ段が効き、呼び出すときの指定と既定の環境変数は空だった。いちばん上の強制用の環境変数だけ枠が無く、確かめていない">
+      <text x="20" y="26" class="f-cap f-left">裏で動く Claude のモデルは、上から順に決まる</text>
+      <line x1="20" y1="40" x2="680" y2="40" class="f-line f-faint" />
+
+      <text x="30" y="62" class="f-mini f-left">決め方（上が強い。空なら下へ落ちる）</text>
+      <text x="290" y="62" class="f-mini f-left">今回の記録では</text>
+      <text x="560" y="62" class="f-mini f-left">判定</text>
+      <line x1="20" y1="74" x2="680" y2="74" class="f-line" />
+
+      {/* 枠を描かない ＝ 緑でも赤でもない。model-default の図で決めた扱いに揃えてある */}
+      <text x="48" y="114" class="f-mini f-left f-faint">環境変数（強制用）</text>
+      <text x="290" y="114" class="f-mini f-left f-faint">2.1.257 で増えた段</text>
+      <text x="560" y="114" class="f-mini f-left f-faint">確かめていない</text>
+
+      <rect x="30" y="134" width="500" height="40" rx="6" class="f-gone" />
+      <text x="48" y="159" class="f-mini f-left t-gone">呼び出すときの指定</text>
+      <text x="290" y="159" class="f-mini f-left t-gone">4 役を走らせた 1 回では無かった</text>
+      <text x="560" y="159" class="f-mini f-left t-gone">空だった</text>
+
+      <rect x="30" y="188" width="500" height="40" rx="6" class="f-add" />
+      <text x="48" y="213" class="f-mini f-left t-add">役の定義の model 行</text>
+      <text x="290" y="213" class="f-mini f-left t-add">書いた役はその通り動いた</text>
+      <text x="560" y="213" class="f-mini f-left t-add">効いた</text>
+
+      <rect x="30" y="242" width="500" height="40" rx="6" class="f-gone" />
+      <text x="48" y="267" class="f-mini f-left t-gone">環境変数（既定）</text>
+      <text x="290" y="267" class="f-mini f-left t-gone">設定していない（確かめた）</text>
+      <text x="560" y="267" class="f-mini f-left t-gone">空だった</text>
+
+      <rect x="30" y="296" width="500" height="40" rx="6" class="f-add" />
+      <text x="48" y="321" class="f-mini f-left t-add">呼び出した側を継ぐ</text>
+      <text x="290" y="321" class="f-mini f-left t-add">43 件がここまで落ちた</text>
+      <text x="560" y="321" class="f-mini f-left t-add">効いた</text>
+
+      <text x="30" y="366" class="f-mini f-left">赤い段が空だったので、43 件はいちばん下まで落ちて、呼び出した側と同じモデルになりました</text>
+    </svg>
+  )}
+
   <figcaption>{caption}</figcaption>
 </figure>
