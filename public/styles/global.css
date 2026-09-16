@@ -52,7 +52,7 @@
   --gon: "Hiragino Sans","ヒラギノ角ゴシック","Hiragino Kaku Gothic ProN","YuGothic",system-ui,sans-serif;
   --mono: "SFMono-Regular",Menlo,"Courier",monospace;
 
-  --q-huge:  clamp(34px, 9vw, 84px);
+  --q-huge:  clamp(32px, 5.4vw, 52px);
   --q-sub:   clamp(20px, 3.4vw, 29px);
   --q-body:  16.5px;
   --q-micro: 11px;
@@ -86,6 +86,23 @@ h1 { font-family: var(--go); font-weight: 900; font-size: var(--q-huge);
   line-height: 1.02; letter-spacing: -.035em; margin: 38px 0 22px; text-wrap: balance; }
 h1::after { content: ""; display: block; width: 120px; height: 9px;
   background: var(--hot); margin-top: 26px; }
+
+/* ── 記事の題字 ── ホームの題字（.site-t）と同じ語彙を記事にも持ち込む。
+     隅トンボ（1px の角）＋ 走査線で塗った字。縞の値 .062em/.088em は .site-t2 と同じ。
+   ⚠ ホームを除くこと（:not(.site-t)）。あちらは .site-t1「ループちゃんの」が自前の色を
+     持っていないので、h1 に color:transparent を置くとあの行が消えます。
+   ⚠ 朱の罫は「題の下」に残す（■ 刷り色の役割）。文字には使わない。 */
+h1:not(.site-t) { position: relative; padding: 18px 0 0 18px;
+  line-height: 1.06; margin: 34px 0 20px;
+  background: repeating-linear-gradient(180deg, var(--fg) 0 .062em, transparent .062em .088em);
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+h1:not(.site-t)::before { content: ""; position: absolute; left: 0; top: 0;
+  width: 20px; height: 20px;
+  border-left: 1px solid var(--fg); border-top: 1px solid var(--fg); }
+/* 朱の罫は隅トンボのぶん左へ戻して、題字の左端に揃える */
+h1:not(.site-t)::after { width: 96px; height: 7px; margin-top: 20px; margin-left: -18px; }
+/* 縞で塗れない表示（強制カラー）では、ふつうの文字色に戻す */
+@media (forced-colors: active) { h1:not(.site-t) { background: none; color: CanvasText; } }
 
 /* ── 奥付 ── */
 .meta, .row-m { display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
