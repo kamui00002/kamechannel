@@ -8,7 +8,7 @@ publishedAt: '2026-09-16'
 # モデル名は会話記録（~/.claude/projects の assistant 行の model）で確認。
 # 「使い分け」の節だけは実測ではなく判断。値段は bundled skill claude-api の表。
 # reviewed: true は運営者だけが立てる。
-reviewed: false
+reviewed: true
 
 # 図。どこに・どの図を・どういう説明で、の 3 つだけを持つ（絵は src/components/Figure.astro）。
 # ⚠ after は註の段落番号（1 始まり）。段落を足し引きしたらここも数え直すこと。
