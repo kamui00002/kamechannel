@@ -114,9 +114,39 @@ const K12_CONTROLS = [
   ['手元には<span class="gl-t" popover><img class="gl-face" src="/loop/face-focus.png" alt=""><b>CLAUDE.md</b><span class="gl-b">説明の 文</span></span>が', false, '畳まれた用語カードの中身（誌面に出ない。顔の img が入った実際の形）'],
 ];
 
+/** 図の検知器の対照。[見本, 鳴るべきか, 何を見ているか] */
+const K12_FIG_CONTROLS = [
+  ['<text>切り替え たら</text>', true, '図の中の和文どうしの空白（記号が隣に無い＝人の文章）'],
+  ['<text>「合言葉は バナナ3個 です」</text>', true, '図の中の台詞の空き（2026-09-17 に実際に出ていた形）'],
+  ['<text>★ 別枠。いつでも読まれる</text>', false, '記号の後ろの空き（図の見出し。空けるのが正しい）'],
+  ['<text>① 設定ファイルの既定 ── 開いて確かめた</text>', false, '丸数字と罫線まわりの空き（同上）'],
+];
+
 function jpGaps(fragment) {
   const text = dropPopovers(fragment).replace(/<[^>]+>/g, '');
   return [...text.matchAll(JP_GAP)].map((m) => m[0].trim());
+}
+
+/*
+ * 図（SVG）の中の和文にも同じ隙間が出ます。**組む側の tighten は SVG を通っていません**
+ * （2026-09-17 実測。本文の「合言葉は バナナ3個 です」は詰まるのに、図の同じ台詞は
+ * 空きが残ったまま誌面に出ていた）。だから本文と同じようには見られません。
+ *
+ * ⚠ ただし図には「★ 別枠」「① 設定ファイルの既定 ── 開いて確かめた」のように
+ *    **意図して空けた**空白が混ざります（実測 16 件）。素で当てると偽陽性で埋まります。
+ * ⚠ ここで「16 件以下なら緑」と閾値を置かないこと。数字はすぐ腐ります（K12 本体の
+ *    コメントと同じ理由）。代わりに「空白の**隣が記号・罫線なら通す**」という
+ *    構造の規則で切り分けます。記号は figure の見出し・凡例にしか出ないので、
+ *    人の文章の隙間を取りこぼしません（「別 枠」のような並びは記号が隣に無いので鳴ります）。
+ */
+const FIG_MARKS = /[★☆▶▼◀▲●○■□◆◇①②③④⑤⑥⑦⑧⑨⑩─━＝→←↑↓]/;
+
+function figGaps(fragment) {
+  const text = dropPopovers(fragment).replace(/<[^>]+>/g, '');
+  // JP_GAP の一致は [和文][空白][和文] なので、両端の 1 文字が記号かどうかで判定できます。
+  return [...text.matchAll(JP_GAP)]
+    .filter((m) => !FIG_MARKS.test(m[0][0]) && !FIG_MARKS.test(m[0][m[0].length - 1]))
+    .map((m) => m[0].trim());
 }
 
 /** dist/ 配下のテキストファイルを全部読む。 */
@@ -154,6 +184,13 @@ if (selfTest) {
     if (fired === shouldFire) ok('対照', `${shouldFire ? '鳴った' : '黙った'}: ${why}`);
     else { console.error(`  ✗ 対照 ${why} — ${shouldFire ? '鳴りませんでした' : '誤って鳴りました'}（検知器が壊れています）`); bad += 1; }
   }
+  // 図の検知器も同じ作法で。記号の例外が効きすぎて「何も鳴らない」に倒れていないかを見ます。
+  for (const [sample, shouldFire, why] of K12_FIG_CONTROLS) {
+    const fired = figGaps(sample).length > 0;
+    if (fired === shouldFire) ok('対照', `${shouldFire ? '鳴った' : '黙った'}: ${why}`);
+    else { console.error(`  ✗ 対照 ${why} — ${shouldFire ? '鳴りませんでした' : '誤って鳴りました'}（検知器が壊れています）`); bad += 1; }
+  }
+
   if (bad > 0) { console.error(`\n陽性対照 FAIL: ${bad} 件。K6/K7・K12 の結果を「検証済み」と書かないこと。`); process.exit(1); }
   console.log('\n陽性対照 PASS。検知器は生きています。\n');
   process.exit(0);
@@ -391,9 +428,13 @@ if (distMode) {
       // ループちゃんの一言（2026-09-14 追加）。組む側で tighten() を通している人の文なので同じく見る
       ['ループちゃんの一言', /<p class="loop-b">([\s\S]*?)<\/p>/g],
       ['説明文', /<meta (?:name|property)="(?:og:)?description" content="([^"]*)"/g],
+      // 図の中の字と読み上げ文（2026-09-17 追加）。組む側の tighten を**通っていない**面なので、
+      // ここだけ記号・罫線の例外つきの figGaps で見ます。
+      ['図の中の字', /<text[^>]*>([\s\S]*?)<\/text>/g, figGaps],
+      ['図の読み上げ文', /aria-label="([^"]*)"/g, figGaps],
     ];
-    for (const [label, re] of surfaces) {
-      const hits = [...html.matchAll(re)].flatMap((m) => jpGaps(m[1]));
+    for (const [label, re, detect = jpGaps] of surfaces) {
+      const hits = [...html.matchAll(re)].flatMap((m) => detect(m[1]));
       if (hits.length === 0) continue;
       // 壊れると 100 件超えるので、件数と見本だけ出します（全部出すと読めません）
       const sample = hits.slice(0, 3).map((h) => `「${h}」`).join(' ');
@@ -401,7 +442,7 @@ if (distMode) {
       k12 += 1;
     }
   }
-  if (k12 === 0) ok('K12', `entry ${entries.length} 件の本文・図の説明・説明文・ループちゃんの一言に和文どうしの隙間は無い`);
+  if (k12 === 0) ok('K12', `entry ${entries.length} 件の本文・図の説明・説明文・ループちゃんの一言・図の中の字と読み上げ文に和文どうしの隙間は無い`);
 }
 
 console.log(failed === 0 ? '\nPASS' : `\nFAIL: ${failed} 件`);
